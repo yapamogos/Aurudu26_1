@@ -1,0 +1,374 @@
+using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
+
+public class KanaMuttiPlayer : MonoBehaviour
+{
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float speedIncreasePerRound = 2f;
+    [SerializeField] private float minX = -3f;
+    [SerializeField] private float maxX = 3f;
+
+    [Header("Game Settings")]
+    [SerializeField] private int totalRounds = 3;
+    [SerializeField] private float delayBeforeNextRound = 2f;
+
+    [Header("UI")]
+    [SerializeField] private TextMeshProUGUI roundText;
+    [SerializeField] private TextMeshProUGUI resultText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private UnityEngine.UI.Button actionButton;
+
+
+    [Header("Animation")]
+    [SerializeField] private PlayerAnimator playerAnimator;
+
+    [Header("Pots")]
+    [SerializeField] private PotSet[] pots = new PotSet[3];
+
+    [Header("Particle Systems")]
+    [SerializeField] private ParticleSystem correctHitParticles;
+    [SerializeField] private ParticleSystem wrongHitParticles;
+
+
+    [Header("Scoring")]
+    [SerializeField] private int wrongPotScore_R12 = 10;
+    [SerializeField] private int correctPotScore_R12 = 20;
+    [SerializeField] private int wrongPotScore_R3 = 10;
+    [SerializeField] private int correctPotScore_R3 = 60;
+    [SerializeField] private int perfectScore = 100;
+
+    // Game state
+    private float currentSpeed;
+    private int currentRound = 1;
+    private int direction = 1;
+    private bool isMoving = false; // Changed to false initially
+    private bool hasChecked = false;
+    private bool gameStarted = false; // New flag to track if game has started
+
+    // Pot tracking
+    private int currentPotNumber = 0;
+    private int brokenPotThisRound = 0;
+    private int targetPotNumber = 0;
+
+    // Score tracking
+    private int totalScore = 0;
+    private int correctHits = 0;
+
+    // Track if current hit is correct (for sound playing)
+    private bool isCurrentHitCorrect = false;
+
+    //back btn
+    [SerializeField] GameObject btn_back;
+
+    [System.Serializable]
+    public struct PotSet
+    {
+        public GameObject full;
+        public GameObject broken;
+        public Transform potPosition;
+    }
+
+    void Start()
+    {
+        Initialize();
+        OnPlayButtonPressed();
+        
+    }
+
+    void Initialize()
+    {
+        currentSpeed = moveSpeed;
+        ChooseRandomTargetPot();
+        SetupAllPots();
+        UpdateUI();
+        resultText.text = "";
+
+
+
+        // Hide back button at start
+        if (btn_back != null)
+        {
+            btn_back.SetActive(false);
+        }
+
+        // Disable action button until game starts
+        if (actionButton != null)
+        {
+            actionButton.interactable = false;
+        }
+    }
+
+    public void OnPlayButtonPressed()
+    {
+        gameStarted = true;
+        isMoving = true;
+
+        if (actionButton != null)
+        {
+            actionButton.interactable = true;
+        }
+
+        Debug.Log("Game Started!");
+    }
+
+    void Update()
+    {
+        if (isMoving && gameStarted)
+        {
+            MovePlayer();
+        }
+    }
+
+    void MovePlayer()
+    {
+        transform.position += Vector3.right * (direction * currentSpeed * Time.deltaTime);
+
+        if (transform.position.x >= maxX) direction = -1;
+        else if (transform.position.x <= minX) direction = 1;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        currentPotNumber = other.CompareTag("col1") ? 1 :
+                          other.CompareTag("col2") ? 2 :
+                          other.CompareTag("col3") ? 3 : 0;
+
+        if (currentPotNumber > 0)
+            Debug.Log($"Entered Pot {currentPotNumber} zone");
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("col1") || other.CompareTag("col2") || other.CompareTag("col3"))
+        {
+            currentPotNumber = 0;
+            Debug.Log("Exited collision zone");
+        }
+    }
+
+    void ChooseRandomTargetPot()
+    {
+        targetPotNumber = Random.Range(1, 4);
+        Debug.Log($"Round {currentRound} - Target Pot: {targetPotNumber}");
+    }
+
+    void SetupAllPots()
+    {
+        for (int i = 0; i < pots.Length; i++)
+        {
+            SetPotState(i, true, false);
+        }
+    }
+
+    void SetPotState(int index, bool showFull, bool showBroken)
+    {
+        if (index < 0 || index >= pots.Length) return;
+
+        if (pots[index].full) pots[index].full.SetActive(showFull);
+        if (pots[index].broken) pots[index].broken.SetActive(showBroken);
+    }
+
+    public void OnActionButtonPressed()
+    {
+        if (hasChecked || !gameStarted) return;
+
+        hasChecked = true;
+        isMoving = false;
+
+        if (currentPotNumber > 0)
+        {
+            HandlePotHit();
+        }
+        else
+        {
+            HandleMiss();
+        }
+    }
+
+    void HandlePotHit()
+    {
+        brokenPotThisRound = currentPotNumber;
+
+        // Calculate and add score
+        int points = CalculateScore();
+        totalScore += points;
+
+        // Update UI
+        UpdateScoreUI();
+
+        // Play animation (Animation Event will call OnHitAnimationEvent)
+        playerAnimator.Mutti();
+
+        // Schedule next round after delay
+        Invoke(nameof(NextRound), delayBeforeNextRound);
+    }
+
+    // THIS METHOD IS CALLED BY ANIMATION EVENT
+    public void OnHitAnimationEvent()
+    {
+        Debug.Log("Animation Event: OnHitAnimationEvent called!");
+        BreakPot();
+    }
+
+    int CalculateScore()
+    {
+        bool isCorrect = currentPotNumber == targetPotNumber;
+        isCurrentHitCorrect = isCorrect; // Store for sound playing
+        int points;
+
+        if (currentRound == 3)
+        {
+            points = isCorrect ? correctPotScore_R3 : wrongPotScore_R3;
+            resultText.text = isCorrect ? $"PERFECT! +{points} points!" : $"Hit! +{points} points!";
+            resultText.color = isCorrect ? Color.green : Color.yellow;
+        }
+        else
+        {
+            points = isCorrect ? correctPotScore_R12 : wrongPotScore_R12;
+            resultText.text = isCorrect ? $"Perfect! +{points} points!" : $"Hit! +{points} points!";
+            resultText.color = isCorrect ? Color.green : Color.yellow;
+        }
+
+        if (isCorrect) correctHits++;
+
+        Debug.Log($"Round {currentRound} - Points: {points} | Total: {totalScore}");
+        return points;
+    }
+
+    void BreakPot()
+    {
+        if (brokenPotThisRound == 0) return;
+
+        int index = brokenPotThisRound - 1;
+        SetPotState(index, false, true);
+
+        // Play appropriate particles and sound at pot position
+        PlayParticlesAndSoundAtPot(index);
+
+        Debug.Log($"Pot {brokenPotThisRound} broken");
+    }
+
+    void PlayParticlesAndSoundAtPot(int potIndex)
+    {
+        if (potIndex < 0 || potIndex >= pots.Length) return;
+
+        // Get pot position
+        Vector3 potPosition = pots[potIndex].potPosition != null
+            ? pots[potIndex].potPosition.position
+            : pots[potIndex].full != null
+            ? pots[potIndex].full.transform.position
+            : Vector3.zero;
+
+        // Play the appropriate particle system and sound
+        if (isCurrentHitCorrect)
+        {
+            // CORRECT HIT
+            if (correctHitParticles != null)
+            {
+                correctHitParticles.transform.position = potPosition;
+                correctHitParticles.Play();
+                Debug.Log("Playing CORRECT hit particles");
+            }
+
+        }
+        else
+        {
+            // WRONG HIT
+            if (wrongHitParticles != null)
+            {
+                wrongHitParticles.transform.position = potPosition;
+                wrongHitParticles.Play();
+                Debug.Log("Playing WRONG hit particles");
+            }
+
+
+        }
+    }
+
+    void RestorePot()
+    {
+        if (brokenPotThisRound == 0) return;
+
+        int index = brokenPotThisRound - 1;
+        SetPotState(index, true, false);
+        Debug.Log($"Pot {brokenPotThisRound} restored");
+    }
+
+    void HandleMiss()
+    {
+        resultText.text = "Missed! Game Over!";
+        resultText.color = Color.red;
+        actionButton.interactable = false;
+        btn_back.SetActive(true);
+        Invoke(nameof(ShowFinalScore), 1f);
+    }
+
+    void NextRound()
+    {
+        RestorePot();
+        currentRound++;
+
+        if (currentRound > totalRounds)
+        {
+            ShowFinalScore();
+            return;
+        }
+
+        // Setup next round
+        ChooseRandomTargetPot();
+        currentSpeed += speedIncreasePerRound;
+
+        // Reset state
+        hasChecked = false;
+        isMoving = true;
+        currentPotNumber = 0;
+        brokenPotThisRound = 0;
+        isCurrentHitCorrect = false;
+        resultText.text = "";
+
+        // Reset position
+        Vector3 pos = transform.position;
+        pos.x = minX;
+        transform.position = pos;
+        direction = 1;
+
+        UpdateUI();
+    }
+
+    void ShowFinalScore()
+    {
+        if (correctHits == 3)
+        {
+            totalScore = perfectScore;
+            resultText.text = $" PERFECT! HIGH SCORE: {perfectScore}!";
+            resultText.color = Color.cyan;
+        }
+        else
+        {
+            resultText.text = $"Game Complete! Final Score: {totalScore}";
+            resultText.color = Color.yellow;
+        }
+
+        UpdateScoreUI();
+        actionButton.interactable = false;
+        btn_back.SetActive(true);
+    }
+
+    void UpdateUI()
+    {
+        roundText.text = $"Round: {currentRound}";
+        UpdateScoreUI();
+    }
+
+    void UpdateScoreUI()
+    {
+        if (scoreText) scoreText.text = $"Score: {totalScore}";
+    }
+
+    public void fn_goBackToMain()
+    {
+        SceneManager.LoadScene("Menu");
+    }
+}
