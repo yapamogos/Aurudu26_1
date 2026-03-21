@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Threading;
+using PlayFab;
+using PlayFab.ClientModels;
+using System.Collections.Generic;
 
 public class GeneralManager : MonoBehaviour
 {
@@ -29,6 +32,12 @@ public class GeneralManager : MonoBehaviour
         StartCoroutine("WaitForNextFrame");
     }
 
+
+    void Start()
+    {
+        Login();
+    }
+
     IEnumerator WaitForNextFrame()
     {
         while (true)
@@ -55,5 +64,46 @@ public class GeneralManager : MonoBehaviour
     public void SetCurrentColorIndex(int index)
     {
         currentColorIndex = index;
+    }
+
+    void Login()
+    {
+        var request = new LoginWithCustomIDRequest
+        {
+            CustomId = SystemInfo.deviceUniqueIdentifier, // Unique ID for this device
+            CreateAccount = true // Creates a new account if one doesn't exist
+        };
+        PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
+    }
+
+    void OnLoginSuccess(LoginResult result)
+    {
+    Debug.Log("Login successful!");
+    }
+
+    void OnLoginFailure(PlayFabError error)
+    {
+    Debug.LogError(error.GenerateErrorReport());
+    }
+
+    public void SubmitScore(int score) {
+    var request = new UpdatePlayerStatisticsRequest {
+        Statistics = new List<StatisticUpdate> {
+            new StatisticUpdate {
+                StatisticName = "HighScore",
+                Value = score
+            }
+        }
+    };
+    PlayFabClientAPI.UpdatePlayerStatistics(request, OnScoreSubmitSuccess, OnError);
+    }
+
+    void OnScoreSubmitSuccess(UpdatePlayerStatisticsResult result) 
+    {
+        Debug.Log("Score submitted successfully!");
+    }
+
+    void OnError(PlayFabError error) {
+        Debug.LogError(error.GenerateErrorReport());
     }
 }
