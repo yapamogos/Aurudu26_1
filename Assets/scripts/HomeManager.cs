@@ -13,7 +13,7 @@ public class HomeManager : MonoBehaviour
 
     void Start()
     {
-        if (PlayerPrefs.HasKey("MyName"))
+        if (PlayerPrefs.HasKey("MyName") && PlayerPrefs.HasKey("Uniq_Player_ID"))
         {
             NamePanel.SetActive(false);
             StartButton.SetActive(true);
@@ -34,7 +34,6 @@ public class HomeManager : MonoBehaviour
         PlayerPrefs.Save();
         NamePanel.SetActive(false);
         StartButton.SetActive(true);
-        generalManager.SetDisplayName(name);
     }
 
 
@@ -42,6 +41,7 @@ public class HomeManager : MonoBehaviour
     public void StartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+        generalManager.Login();
     }
 
     public void Menutransition()

@@ -71,7 +71,6 @@ public class GeneralManager : MonoBehaviour
 
     void Start()
     {
-        Login();
         wasanaMuttiPlayed = true;
         KambaAdeemaPlayed = true;
         KottaPoraPlayed = true;
@@ -113,20 +112,41 @@ public class GeneralManager : MonoBehaviour
 
     string uniqueSessionId = Guid.NewGuid().ToString();
 
-    void Login()
+    public void Login()
     {
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = SystemInfo.deviceUniqueIdentifier, // Unique ID for this device
-            //CustomId = uniqueSessionId, // Unique ID for this session
-            CreateAccount = true // Creates a new account if one doesn't exist
+            // Use our custom generator instead of SystemInfo
+            CustomId = GetOrCreatePlayerID(), 
+            CreateAccount = true
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
     }
 
+    string GetOrCreatePlayerID()
+    {
+        // 1. Check if we already have an ID saved in this browser's cache
+        string savedID = PlayerPrefs.GetString("Uniq_Player_ID", "");
+
+        if (string.IsNullOrEmpty(savedID))
+        {
+            // 2. If not, generate a brand new unique one
+            // Guid.NewGuid() is statistically impossible to duplicate
+            savedID = Guid.NewGuid().ToString();
+            
+            // 3. Save it so they get the same account next time
+            PlayerPrefs.SetString("Uniq_Player_ID", savedID);
+            PlayerPrefs.Save();
+            Debug.Log("Generated new WebGL ID: " + savedID);
+        }
+
+        return savedID;
+    }
+
     void OnLoginSuccess(LoginResult result)
     {
-    Debug.Log("Login successful!");
+        Debug.Log("Login successful!");
+        SetDisplayName(PlayerPrefs.GetString("MyName", "Guest"));
     }
 
     void OnLoginFailure(PlayFabError error)
