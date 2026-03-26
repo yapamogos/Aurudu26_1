@@ -6,8 +6,9 @@ using TMPro;
 
 public class ElephantEyeGame2D : MonoBehaviour
 {
+    [SerializeField] private GameUIController gameUIController;
+
     [Header("Game Settings")]
-    [SerializeField] private float showEyeDuration = 2f;
     [SerializeField] private int maxScore = 100;
     [SerializeField] private float countdownTime = 20f; // 20 seconds countdown
 
@@ -40,7 +41,6 @@ public class ElephantEyeGame2D : MonoBehaviour
 
     private bool canTouch = false;
     private bool dotIsMoving = false;
-    private bool gameStarted = false;
     private Vector3 eyeWorldPosition;
     private Vector3 dotVelocity;    private float currentSpeed;
     private Color originalEyeColor;
@@ -54,17 +54,11 @@ public class ElephantEyeGame2D : MonoBehaviour
         eyeWorldPosition = elephantSprite.transform.TransformPoint(eyePosition);
         blackoutPanel.color = new Color(0, 0, 0, 0f);
 
-        // Show instruction panel at start
-        if (instructionPanel != null)
-            instructionPanel.SetActive(true);
-
         blackoutPanel.gameObject.SetActive(true);
-        exitButton.gameObject.SetActive(false);
         scoreText.gameObject.SetActive(false);
         movingDot.gameObject.SetActive(false);
 
-        if (timerText != null)
-            timerText.gameObject.SetActive(false);
+       
 
         instructionText.text = "Tap anywhere to start!";
         instructionText.color = Color.black;
@@ -73,22 +67,20 @@ public class ElephantEyeGame2D : MonoBehaviour
         originalEyeColor = eyeMarker.color;
 
         ResetDotVelocity();
+
+                // Position dot at random starting position
+        Bounds bounds = movementAreaSprite.bounds;
+        float startX = Random.Range(bounds.min.x + dotPadding, bounds.max.x - dotPadding);
+        float startY = Random.Range(bounds.min.y + dotPadding, bounds.max.y - dotPadding);
+        
+        movingDot.gameObject.SetActive(true);        
+        movingDot.transform.position = new Vector3(startX, startY, -1);
+        dotIsMoving = true;
     }
 
     void Update()
     {
-        // First tap - dismiss instruction panel and start game
-        if (Input.GetMouseButtonDown(0) && !gameStarted)
-        {
-            if (instructionPanel != null && instructionPanel.activeSelf)
-            {
-                instructionPanel.SetActive(false);
-                gameStarted = true;
-                StartGame();
-            }
-        }
-        // Game tap - stop the dot
-        else if (Input.GetMouseButtonDown(0) && canTouch && dotIsMoving)
+        if (Input.GetMouseButtonDown(0) && canTouch && dotIsMoving)
         {
             StopDotAndShowResults();
         }
@@ -105,6 +97,18 @@ public class ElephantEyeGame2D : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        // Subscribe to the timer event
+        GameUIController.OnTimerFinished += StartGame;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe to avoid memory leaks/errors
+        GameUIController.OnTimerFinished -= StartGame;
+    }
+
     void StartGame()
     {
         StartCoroutine(GameSequence());
@@ -116,19 +120,12 @@ public class ElephantEyeGame2D : MonoBehaviour
         instructionText.color = Color.yellow;
 
         eyeMarker.gameObject.SetActive(true);
-        movingDot.gameObject.SetActive(true);
-        movingDot.sortingOrder = 5;
 
-        // Position dot at random starting position
-        Bounds bounds = movementAreaSprite.bounds;
-        float startX = Random.Range(bounds.min.x + dotPadding, bounds.max.x - dotPadding);
-        float startY = Random.Range(bounds.min.y + dotPadding, bounds.max.y - dotPadding);
-        movingDot.transform.position = new Vector3(startX, startY, -1);
 
-        dotIsMoving = true;
+
+ 
         canTouch = false;
 
-        yield return new WaitForSeconds(showEyeDuration);
         eyeMarker.gameObject.SetActive(false);
 
         instructionText.text = "Get Ready...";
@@ -136,7 +133,6 @@ public class ElephantEyeGame2D : MonoBehaviour
         movingDot.sortingOrder = -1;
 
         yield return StartCoroutine(SlideBlackoutDown());
-        yield return new WaitForSeconds(1f);
 
         instructionText.text = "TAP to stop the dot!";
         instructionText.color = Color.green;
@@ -209,28 +205,12 @@ public class ElephantEyeGame2D : MonoBehaviour
     {
         remainingTime = countdownTime;
         timerRunning = true;
-
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(true);
-            timerText.color = Color.white;
-        }
     }
 
     void UpdateTimer()
     {
         remainingTime -= Time.deltaTime;
 
-        if (timerText != null)
-        {
-            timerText.text = $"Time: {Mathf.Ceil(remainingTime)}s";
-
-            // Change color when time is running out
-            if (remainingTime <= 5f)
-                timerText.color = Color.red;
-            else if (remainingTime <= 10f)
-                timerText.color = Color.yellow;
-        }
 
         // Time's up - auto stop
         if (remainingTime <= 0f)
@@ -268,13 +248,13 @@ public class ElephantEyeGame2D : MonoBehaviour
         canTouch = false;
         timerRunning = false;
 
-        if (timerText != null)
-            timerText.gameObject.SetActive(false);
 
         Vector3 finalDotPosition = movingDot.transform.position;
         float distance = Vector2.Distance(finalDotPosition, eyeWorldPosition);
         int score = CalculateScore(distance);
         StartCoroutine(ShowResultsWithAnimation(score, distance, finalDotPosition));
+
+        gameUIController.GameOver("AliyataAhaThabima");
     }
 
     IEnumerator ShowResultsWithAnimation(int score, float distance, Vector3 dotPosition)
@@ -303,8 +283,9 @@ public class ElephantEyeGame2D : MonoBehaviour
         instructionText.text = GetResultMessage(score);
         instructionText.color = GetResultColor(score);
 
-        // Show exit button
-        exitButton.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        gameUIController.ShowGameOverPanel(score, "AliyataAhaThabima");
+
     }
 
     int CalculateScore(float distance)
@@ -366,11 +347,11 @@ public class ElephantEyeGame2D : MonoBehaviour
     string GetScoreMessage(int score)
     {
         if (score == maxScore)
-            return "🎯 PERFECT! Bull's Eye!";
+            return "PERFECT! Bull's Eye!";
         else if (score >= maxScore * 0.8f)
-            return "🌟 Excellent!";
+            return "Excellent!";
         else if (score >= maxScore * 0.6f)
-            return "👍 Good job!";
+            return "Good job!";
         else if (score >= maxScore * 0.4f)
             return "Not bad!";
         else if (score >= maxScore * 0.2f)

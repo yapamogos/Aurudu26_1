@@ -1,26 +1,51 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class HomeManager : MonoBehaviour
 {
+    [SerializeField] private GameObject NamePanel;
+    [SerializeField] private GameObject StartButton;
 
-    [SerializeField] private GameObject portraitCanvas;
-    [SerializeField] private GameObject landscapeCanvas;
-    private void Start()
+    [SerializeField] private TMP_InputField nameInputField;
+
+    private GeneralManager generalManager;
+
+    void Start()
     {
-        if (Screen.width > Screen.height)
+        if (PlayerPrefs.HasKey("MyName"))
         {
-            portraitCanvas.SetActive(false);
-            landscapeCanvas.SetActive(true);
+            NamePanel.SetActive(false);
+            StartButton.SetActive(true);
         }
         else
         {
-            portraitCanvas.SetActive(true);
-            landscapeCanvas.SetActive(false);
+            NamePanel.SetActive(true);
+            StartButton.SetActive(false);
         }
+
+        generalManager = GeneralManager.Instance;
     }
+
+    public void SetName()
+    {
+        string name = nameInputField.text;
+        PlayerPrefs.SetString("MyName", name);
+        PlayerPrefs.Save();
+        NamePanel.SetActive(false);
+        StartButton.SetActive(true);
+        generalManager.SetDisplayName(name);
+    }
+
+
 
     public void StartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+    }
+
+    public void Menutransition()
+    {
+        this.GetComponent<Animator>().Play("HomeTrans");
     }
 }

@@ -7,11 +7,6 @@ public class Kottaporamanager : MonoBehaviour
 {
     [Header("Start Panel")]
 
-    [Header("Countdown")]
-    [SerializeField] private TMP_Text countdownText;          // center screen TMP
-    [SerializeField] private float countdownInterval = 1f;    // time between 3,2,1
-    [SerializeField] private float goDisplayTime = 0.7f;      // how long "GO!" stays
-
     [Header("UI References")]
     [SerializeField] private Slider timingSlider;
     [SerializeField] private BoxCollider2D sliderCollider;    // moving collider (prefer Handle)
@@ -59,6 +54,7 @@ public class Kottaporamanager : MonoBehaviour
 
     private int roundIndex;
     private int shotIndex;
+    private int shotRound;
     private int hitsThisRound;
 
     private float timeLeftThisShot;
@@ -70,6 +66,8 @@ public class Kottaporamanager : MonoBehaviour
     private bool gameStarted;
 
     private GeneralManager generalManager;
+
+    [SerializeField] private GameUIController gameUIController;
 
     private void Start()
     {
@@ -98,9 +96,10 @@ public class Kottaporamanager : MonoBehaviour
 
         totalScore = 0f;
         if (resultText) resultText.text = "";
+        shotRound = 1;
 
         UpdateUI();
-        OnStartPressed();
+        Innitialize();
 
 
 
@@ -115,6 +114,17 @@ public class Kottaporamanager : MonoBehaviour
         myPlayerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
         myPlayerAnimator.ColorIndex = generalManager.currentColorIndex;
         myPlayerAnimator.UpdateCharacter();
+    }
+
+
+    void OnEnable()
+    {
+        GameUIController.OnTimerFinished += StartGame;
+    }
+
+    void OnDisable()
+    {
+        GameUIController.OnTimerFinished -= StartGame;
     }
 
     private void Update()
@@ -144,43 +154,20 @@ public class Kottaporamanager : MonoBehaviour
         timingSlider.value = value;
     }
 
-    private void OnStartPressed()
+    private void Innitialize()
     {
         // Lock gameplay during countdown
         gameStarted = false;
         resolved = true;
         hitButton.interactable = false;
+        gameUIController.Round = 1;
+        gameUIController.Score = 0;
 
-        StartCoroutine(CountdownThenStart());
     }
 
-    private IEnumerator CountdownThenStart()
+    public void StartGame()
     {
-        if (countdownText)
-        {
-            countdownText.gameObject.SetActive(true);
-
-            countdownText.text = "3";
-            yield return new WaitForSeconds(countdownInterval);
-
-            countdownText.text = "2";
-            yield return new WaitForSeconds(countdownInterval);
-
-            countdownText.text = "1";
-            yield return new WaitForSeconds(countdownInterval);
-
-            countdownText.text = "GO!";
-            yield return new WaitForSeconds(goDisplayTime);
-
-            countdownText.gameObject.SetActive(false);
-        }
-        else
-        {
-            // If no countdown text assigned, still wait a moment
-            yield return new WaitForSeconds(0.2f);
-        }
-
-        // Start game
+              // Start game
         gameStarted = true;
         StartNewRound(1);
         UpdateUI();
@@ -214,6 +201,7 @@ public class Kottaporamanager : MonoBehaviour
             AIPlayerAnimator.React();
             hitsThisRound++;
             totalScore += pointsPerHit;
+            gameUIController.Score = Mathf.RoundToInt(totalScore);
         }
         else
         {
@@ -232,6 +220,8 @@ public class Kottaporamanager : MonoBehaviour
         if (shotIndex < shotsPerRound)
         {
             shotIndex++;
+            shotRound++;
+            gameUIController.Round = shotRound; // Update shot round in GameUIController
             StartNewShot();
             return;
         }
@@ -321,10 +311,13 @@ public class Kottaporamanager : MonoBehaviour
         if (shotText) shotText.text = "";
         if (roundTimerText) roundTimerText.text = "0.0s";
         if (resultText) resultText.text = $"FINAL SCORE: {finalScore}/100";
-        WinPanel.SetActive(true);
+        //WinPanel.SetActive(true);
         if(scoreText1) scoreText1.text = $"FINAL SCORE: {finalScore}/100";
 
         UpdateScoreUI();
+
+        gameUIController.GameOver("KottaPora");
+        gameUIController.ShowGameOverPanel(Mathf.RoundToInt(finalScore), "KottaPora");
     }
 
     // ---------- UI ----------
@@ -332,7 +325,7 @@ public class Kottaporamanager : MonoBehaviour
     {
         if (!gameStarted)
         {
-            
+            if (roundText) roundText.text = $"Get Ready!";
             if (shotText) shotText.text = "";
             if (roundTimerText) roundTimerText.text = "";
             UpdateScoreUI();

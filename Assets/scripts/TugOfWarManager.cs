@@ -20,10 +20,7 @@ public class TugOfWarManager : MonoBehaviour
     private bool gameEnded = false;
     private bool gameStarted = false;
 
-    [Header("Countdown")]
-    [SerializeField] GameObject countDownPanel;
-    [SerializeField] TMP_Text countdownText;
-    [SerializeField] float countdownTime = 3f;
+
     bool startAiPull = false;
 
     [Header("Game Stats")]
@@ -44,11 +41,23 @@ public class TugOfWarManager : MonoBehaviour
     [SerializeField] GameObject ref_scorePanel;
     [SerializeField] TextMeshProUGUI ref_scoreText;
 
+    [SerializeField] private GameUIController gameUIController;
+
     void Start()
     {
         winLosePanel.SetActive(false);
         ref_scorePanel.SetActive(false);
         fn_startGame();
+    }
+
+    void OnEnable()
+    {
+        GameUIController.OnTimerFinished += startGame;
+    }
+
+    void OnDisable()
+    {
+        GameUIController.OnTimerFinished -= startGame;
     }
 
     public void fn_startGame()
@@ -66,7 +75,6 @@ public class TugOfWarManager : MonoBehaviour
 
         rope.position = new Vector3(rope.position.x, rope.position.y, startZ);
 
-        StartCoroutine(StartCountdown());
     }
 
     void Update()
@@ -107,6 +115,7 @@ public class TugOfWarManager : MonoBehaviour
             //ref_psWin.Play();
             //CalculateScore();
         }
+
     }
 
     private void EndGame(string message)
@@ -119,38 +128,29 @@ public class TugOfWarManager : MonoBehaviour
 
         winLoseTxt.text = message;
         winLosePanel.SetActive(true);
+        gameUIController.GameOver("KambaAdeema");
 
         if (message == "You Win...!")
         {
-            CalculateScore();
+            float clampedTime = Mathf.Clamp(gameTime, bestTime, worstTime);
+            float t = (clampedTime - bestTime) / (worstTime - bestTime);
+            score = Mathf.Round(Mathf.Lerp(100f, 1f, t));
+
         }
         else
         {
             score = 0; // Lose gives 0 score
             ref_scoreText.text = "0";
             // ref_scorePanel.SetActive(true);
-            Invoke("fn_scorePanel", 2f);
+            
         }
+
+        StartCoroutine(ShowScorePanelAfterDelay());
     }
 
 
-    IEnumerator StartCountdown()
+    void startGame()
     {
-        countDownPanel.SetActive(true);
-        float time = countdownTime;
-
-        while (time > 0)
-        {
-            countdownText.text = Mathf.Ceil(time).ToString();
-            yield return new WaitForSeconds(1f);
-            time--;
-        }
-
-        countdownText.text = "GO!";
-        yield return new WaitForSeconds(1f);
-
-        countDownPanel.SetActive(false);
-
         // Game officially starts here
         startAiPull = true;
         gameStarted = true;
@@ -171,24 +171,9 @@ public class TugOfWarManager : MonoBehaviour
         }
     }
 
-    void CalculateScore()
+    IEnumerator ShowScorePanelAfterDelay()
     {
-        float clampedTime = Mathf.Clamp(gameTime, bestTime, worstTime);
-        float t = (clampedTime - bestTime) / (worstTime - bestTime);
-        score = Mathf.Round(Mathf.Lerp(100f, 1f, t));
-
-        ref_scoreText.text = ((int)score).ToString();
-        // ref_scorePanel.SetActive(true);
-        Invoke("fn_scorePanel", 3f);
-    }
-
-    public void fn_goBackToMain()
-    {
-        SceneManager.LoadScene("Menu");
-    }
-
-    private void fn_scorePanel() 
-    {
-        ref_scorePanel.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        gameUIController.ShowGameOverPanel(Mathf.RoundToInt(score), "KambaAdeema");
     }
 }

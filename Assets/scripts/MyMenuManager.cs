@@ -1,21 +1,38 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class MyMenuManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public Player player;
+    [SerializeField] private TextMeshProUGUI TotalScoreText;
+    private GeneralManager generalManager;
+
+    void LateUpdate()
+    {
+        int totalScore = generalManager.MyTotalScore;
+        TotalScoreText.text = "Total Score: " + totalScore.ToString();
+    } 
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+        generalManager = GeneralManager.Instance;
+        if(generalManager.MyTotalScore > 0)
+        {
+            generalManager.SubmitScore(generalManager.MyTotalScore);   
+        }
+    }  
 
     public void StartGame(string sceneName)
     {
+        player.SetPlayerPosition();
         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+        
+    }
+
+    public void HomeButton()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
     }
 }

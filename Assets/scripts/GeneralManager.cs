@@ -4,6 +4,7 @@ using System.Threading;
 using PlayFab;
 using PlayFab.ClientModels;
 using System.Collections.Generic;
+using System;
 
 public class GeneralManager : MonoBehaviour
 {
@@ -13,6 +14,38 @@ public class GeneralManager : MonoBehaviour
     int MaxRate = 120;
     public float TargetFrameRate = 120.0f;
     float currentFrameTime;
+
+    public int wasanaMuttiScore = 0;
+    public int KambaAdeemaScore = 0;
+    public int KottaPoraScore = 0;
+    public int AliyataAhaThabimaScore = 0;
+    public int LissanaGahaScore = 0;
+
+    public bool wasanaMuttiPlayed = false;
+    public bool KambaAdeemaPlayed = false;
+    public bool KottaPoraPlayed = false;
+    public bool AliyataAhaThabimaPlayed = false;
+    public bool LissanaGahaPlayed = false;
+
+
+    public Vector3 PlayerLastPosition ;
+
+
+
+    public int MyTotalScore
+    {
+        get { 
+            return wasanaMuttiScore + KambaAdeemaScore + KottaPoraScore + AliyataAhaThabimaScore + LissanaGahaScore; 
+            }
+        set
+        {
+            
+        }
+    }
+
+
+
+
 
     private void Awake()
     {
@@ -30,13 +63,25 @@ public class GeneralManager : MonoBehaviour
         Application.targetFrameRate = MaxRate;
         currentFrameTime = Time.realtimeSinceStartup;
         StartCoroutine("WaitForNextFrame");
+
+        
+        PlayerLastPosition = new Vector3(-2.4f, 0, -44.4f);
     }
 
 
     void Start()
     {
         Login();
+        wasanaMuttiPlayed = true;
+        KambaAdeemaPlayed = true;
+        KottaPoraPlayed = true;
+        AliyataAhaThabimaPlayed = true;
+        LissanaGahaPlayed = true;
+
+
+ 
     }
+
 
     IEnumerator WaitForNextFrame()
     {
@@ -66,11 +111,14 @@ public class GeneralManager : MonoBehaviour
         currentColorIndex = index;
     }
 
+    string uniqueSessionId = Guid.NewGuid().ToString();
+
     void Login()
     {
         var request = new LoginWithCustomIDRequest
         {
             CustomId = SystemInfo.deviceUniqueIdentifier, // Unique ID for this device
+            //CustomId = uniqueSessionId, // Unique ID for this session
             CreateAccount = true // Creates a new account if one doesn't exist
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
@@ -87,15 +135,15 @@ public class GeneralManager : MonoBehaviour
     }
 
     public void SubmitScore(int score) {
-    var request = new UpdatePlayerStatisticsRequest {
-        Statistics = new List<StatisticUpdate> {
-            new StatisticUpdate {
-                StatisticName = "HighScore",
-                Value = score
+        var request = new UpdatePlayerStatisticsRequest {
+            Statistics = new List<StatisticUpdate> {
+                new StatisticUpdate {
+                    StatisticName = "HighScore",
+                    Value = score
+                }
             }
-        }
-    };
-    PlayFabClientAPI.UpdatePlayerStatistics(request, OnScoreSubmitSuccess, OnError);
+        };
+        PlayFabClientAPI.UpdatePlayerStatistics(request, OnScoreSubmitSuccess, OnError);
     }
 
     void OnScoreSubmitSuccess(UpdatePlayerStatisticsResult result) 
@@ -105,5 +153,22 @@ public class GeneralManager : MonoBehaviour
 
     void OnError(PlayFabError error) {
         Debug.LogError(error.GenerateErrorReport());
+    }
+
+
+
+    public void SetDisplayName(string nameToSet)
+    {
+        var request = new UpdateUserTitleDisplayNameRequest
+        {
+            DisplayName = nameToSet
+        };
+
+        PlayFabClientAPI.UpdateUserTitleDisplayName(request, OnDisplayNameUpdate, OnError);
+    }
+
+    void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
+    {
+        Debug.Log("Successfully updated PlayFab Display Name to: " + result.DisplayName);
     }
 }

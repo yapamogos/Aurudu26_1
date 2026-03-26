@@ -21,11 +21,16 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        currentState = CameraState.Start;
-
+        
         transform.position = mapSettings;
         transform.rotation = Quaternion.Euler(35f, 0, 0); // Look straight down
         GetComponent<Camera>().fieldOfView = 15f; // Adjust FOV for
+        Invoke("StartTransition", 1.5f); // Start transition after 1 second
+    }
+
+    public void StartTransition()
+    {
+        currentState = CameraState.Start;
     }
 
     void LateUpdate()
@@ -59,7 +64,7 @@ public class CameraFollow : MonoBehaviour
             transform.position = smoothedPosition;
             float fov = Mathf.Lerp(GetComponent<Camera>().fieldOfView, 35f, 1f * Time.deltaTime);
             GetComponent<Camera>().fieldOfView = fov;
-            if (Vector3.Distance(transform.position, desiredPosition) < 0.1f)
+            if (Vector3.Distance(transform.position, desiredPosition) < 0.01f)
             {
                 currentState = CameraState.Follow;
             }

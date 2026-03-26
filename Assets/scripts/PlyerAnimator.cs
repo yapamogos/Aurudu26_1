@@ -15,7 +15,8 @@ public class PlayerAnimator : MonoBehaviour
         KottaPora,
         LissanaGaha,
         Rabana,
-        KanaMutti
+        KanaMutti,
+        Aubone
 
      }
     public PlayerState currentState;
@@ -87,6 +88,10 @@ public class PlayerAnimator : MonoBehaviour
         {
             animator.SetInteger("Index", 9 );            
             Polla.SetActive(true);
+        }
+        else if(currentState == PlayerState.Aubone)
+        {
+            animator.SetInteger("Index", 10 );
         }
     }
 

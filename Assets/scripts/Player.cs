@@ -13,10 +13,14 @@ public class Player : MonoBehaviour
     private PlayerAnimator playerAnimator;
     private GeneralManager generalManager;
 
+    [SerializeField] private CameraFollow cameraFollow;
+
     void Start()
     {
         // Get the NavMeshAgent component
         agent = GetComponent<NavMeshAgent>();
+
+        
 
         if (agent == null)
         {
@@ -47,6 +51,7 @@ public class Player : MonoBehaviour
         playerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
         playerAnimator.ColorIndex = generalManager.currentColorIndex;
         playerAnimator.UpdateCharacter();
+        transform.position = generalManager.PlayerLastPosition;
     }
 
     void Update()
@@ -62,7 +67,7 @@ public class Player : MonoBehaviour
 
     private void HandleClick()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
+        if (EventSystem.current.IsPointerOverGameObject() || cameraFollow.currentState == CameraFollow.CameraState.MapView)
         {
             return; // Exit the function early; don't move the character
         }
@@ -96,8 +101,15 @@ public class Player : MonoBehaviour
             if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
             {
                 activeIndicator.SetActive(false);
+                SetPlayerPosition();
             }
         }
+    }
+
+    public void SetPlayerPosition()
+    {
+        generalManager.PlayerLastPosition = transform.localPosition;
+        //Debug.Log("Player position saved: " + generalManager.PlayerLastPosition);
     }
 
 

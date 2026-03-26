@@ -40,16 +40,12 @@ public class LissanaPlayer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI TimeText;
 
      private float finishTime;
-
-    [SerializeField] private GameObject ScorePanel;
-    [SerializeField] private TextMeshProUGUI ScoreText;
-
-    [SerializeField] private TextMeshProUGUI countdownText;
-
      private float Timetmp;
 
     private PlayerAnimator playerAnimator;
     private GeneralManager generalManager;
+
+    [SerializeField] private GameUIController gameUIController;
 
     void Start()
     {
@@ -79,9 +75,6 @@ public class LissanaPlayer : MonoBehaviour
             // 3. Add the increment based on the index
             initialPosition[i] = (worldPos.y - totalHeight / 2f) + (i * (totalHeight / 10f));
         }
-
-        ScorePanel.SetActive(false);
-
         playerAnimator = GetComponent<PlayerAnimator>();
         if (playerAnimator == null)
         {
@@ -99,37 +92,20 @@ public class LissanaPlayer : MonoBehaviour
         playerAnimator.UpdateCharacter();
 
         isPlaying = false;
+    }
+    void OnEnable()
+    {
+        GameUIController.OnTimerFinished += startGame;
+    }
 
-        StartCoroutine(CountdownThenStart());
+    void OnDisable()
+    {
+        GameUIController.OnTimerFinished -= startGame;
     }
 
 
-    private IEnumerator CountdownThenStart()
+    public void startGame()
     {
-        if (countdownText)
-        {
-            countdownText.gameObject.SetActive(true);
-
-            countdownText.text = "3";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "2";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "1";
-            yield return new WaitForSeconds(1f);
-
-            countdownText.text = "GO!";
-            yield return new WaitForSeconds(0.5f);
-
-            countdownText.gameObject.SetActive(false);
-        }
-        else
-        {
-            // If no countdown text assigned, still wait a moment
-            yield return new WaitForSeconds(0.2f);
-        }
-
         isPlaying = true;
     }
 
@@ -291,12 +267,9 @@ public class LissanaPlayer : MonoBehaviour
             if(isPlaying)
             {
                 isPlaying = false;
-                Debug.Log("Lissana has reached the top and stopped climbing.");
-                Debug.Log("Final Time: " + finishTime.ToString("F2") + " seconds");
-                Debug.Log("Final Score: " + Mathf.Max(0, 120 - (int)(finishTime * 2f)) + " points");
-                ScoreText.text = "Your Score: " + Mathf.Max(0, 120 - (int)(finishTime * 2f)).ToString();
-                
-                ScorePanel.SetActive(true);
+                gameUIController.GameOver("LissanaGaha");
+                int finalScore = Mathf.Max(0, 120 - (int)(finishTime * 2f));
+                gameUIController.ShowGameOverPanel(finalScore, "LissanaGaha");
             }
         }
 

@@ -15,14 +15,8 @@ public class KanaMuttiPlayer : MonoBehaviour
     [SerializeField] private float delayBeforeNextRound = 2f;
 
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI roundText;
     [SerializeField] private TextMeshProUGUI resultText;
-    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private UnityEngine.UI.Button actionButton;
-
-
-    [Header("Animation")]
-    [SerializeField] private PlayerAnimator playerAnimator;
 
     [Header("Pots")]
     [SerializeField] private PotSet[] pots = new PotSet[3];
@@ -59,8 +53,9 @@ public class KanaMuttiPlayer : MonoBehaviour
     // Track if current hit is correct (for sound playing)
     private bool isCurrentHitCorrect = false;
 
-    //back btn
-    [SerializeField] GameObject btn_back;
+    [SerializeField] private GameUIController gameUIController;
+    private PlayerAnimator playerAnimator;
+    private GeneralManager generalManager;
 
     [System.Serializable]
     public struct PotSet
@@ -73,8 +68,36 @@ public class KanaMuttiPlayer : MonoBehaviour
     void Start()
     {
         Initialize();
-        OnPlayButtonPressed();
+        gameUIController.Round = currentRound; // Initialize round in GameUIController
+        gameUIController.Score = totalScore; // Initialize score in GameUIController
+
+
+        playerAnimator = GetComponent<PlayerAnimator>();
+        if (playerAnimator == null)
+        {
+            Debug.LogError("PlayerAnimator component not found! Please add it to the player.");
+        }
+
+        generalManager = GeneralManager.Instance;
+        if(generalManager == null)
+        {
+            Debug.LogError("GeneralManager instance not found! Please ensure it exists in the scene.");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
+        }
+        playerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
+        playerAnimator.ColorIndex = generalManager.currentColorIndex;
+        playerAnimator.UpdateCharacter();
         
+    }
+
+    void OnEnable()
+    {
+        GameUIController.OnTimerFinished += GameStart;
+    }
+
+    void OnDisable()
+    {
+        GameUIController.OnTimerFinished -= GameStart;
     }
 
     void Initialize()
@@ -82,16 +105,8 @@ public class KanaMuttiPlayer : MonoBehaviour
         currentSpeed = moveSpeed;
         ChooseRandomTargetPot();
         SetupAllPots();
-        UpdateUI();
         resultText.text = "";
 
-
-
-        // Hide back button at start
-        if (btn_back != null)
-        {
-            btn_back.SetActive(false);
-        }
 
         // Disable action button until game starts
         if (actionButton != null)
@@ -100,7 +115,7 @@ public class KanaMuttiPlayer : MonoBehaviour
         }
     }
 
-    public void OnPlayButtonPressed()
+    public void GameStart()
     {
         gameStarted = true;
         isMoving = true;
@@ -194,9 +209,8 @@ public class KanaMuttiPlayer : MonoBehaviour
         // Calculate and add score
         int points = CalculateScore();
         totalScore += points;
+        gameUIController.Score = totalScore; // Update score in GameUIController
 
-        // Update UI
-        UpdateScoreUI();
 
         // Play animation (Animation Event will call OnHitAnimationEvent)
         playerAnimator.Mutti();
@@ -301,7 +315,6 @@ public class KanaMuttiPlayer : MonoBehaviour
         resultText.text = "Missed! Game Over!";
         resultText.color = Color.red;
         actionButton.interactable = false;
-        btn_back.SetActive(true);
         Invoke(nameof(ShowFinalScore), 1f);
     }
 
@@ -309,10 +322,12 @@ public class KanaMuttiPlayer : MonoBehaviour
     {
         RestorePot();
         currentRound++;
+        gameUIController.Round = currentRound; // Update round in GameUIController
 
         if (currentRound > totalRounds)
         {
             ShowFinalScore();
+            
             return;
         }
 
@@ -333,11 +348,9 @@ public class KanaMuttiPlayer : MonoBehaviour
         pos.x = minX;
         transform.position = pos;
         direction = 1;
-
-        UpdateUI();
     }
 
-    void ShowFinalScore()
+    void  ShowFinalScore()
     {
         if (correctHits == 3)
         {
@@ -350,22 +363,12 @@ public class KanaMuttiPlayer : MonoBehaviour
             resultText.text = $"Game Complete! Final Score: {totalScore}";
             resultText.color = Color.yellow;
         }
-
-        UpdateScoreUI();
+            gameUIController.GameOver("WasanaMutti");
+            gameUIController.ShowGameOverPanel(Mathf.RoundToInt(totalScore), "WasanaMutti");
         actionButton.interactable = false;
-        btn_back.SetActive(true);
+
     }
 
-    void UpdateUI()
-    {
-        roundText.text = $"Round: {currentRound}";
-        UpdateScoreUI();
-    }
-
-    void UpdateScoreUI()
-    {
-        if (scoreText) scoreText.text = $"Score: {totalScore}";
-    }
 
     public void fn_goBackToMain()
     {
