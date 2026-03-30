@@ -278,7 +278,7 @@ public class ElephantEyeGame2D : MonoBehaviour
         CreateDottedLine(dotPosition, eyeWorldPosition);
 
         scoreText.gameObject.SetActive(true);
-        scoreText.text = $"SCORE: {score}\nDistance: {distance:F2} units\n{GetScoreMessage(score)}";
+        scoreText.text = $"Distance: {distance:F2} units\n{GetScoreMessage(score)}";
 
         instructionText.text = GetResultMessage(score);
         instructionText.color = GetResultColor(score);

@@ -12,7 +12,7 @@ public class MyMenuManager : MonoBehaviour
     void LateUpdate()
     {
         int totalScore = generalManager.MyTotalScore;
-        TotalScoreText.text = "Total Score: " + totalScore.ToString();
+        TotalScoreText.text = totalScore.ToString();
     } 
 
     void Start()

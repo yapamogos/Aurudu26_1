@@ -198,7 +198,8 @@ public class KanaMuttiPlayer : MonoBehaviour
         }
         else
         {
-            HandleMiss();
+            //HandleMiss();
+            HandleSoftMiss();
         }
     }
 
@@ -316,6 +317,13 @@ public class KanaMuttiPlayer : MonoBehaviour
         resultText.color = Color.red;
         actionButton.interactable = false;
         Invoke(nameof(ShowFinalScore), 1f);
+    }
+
+    void HandleSoftMiss()
+    {
+        resultText.text = "Missed! Try Again!";
+        resultText.color = Color.red;
+        Invoke(nameof(NextRound), delayBeforeNextRound);
     }
 
     void NextRound()

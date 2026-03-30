@@ -15,6 +15,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject _gameOverPanel;
     [SerializeField] private TextMeshProUGUI _gameOverText;
     [SerializeField] private GameObject _ScorePanel;
+    [SerializeField] private GameObject _InstructionPanel;
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private TextMeshProUGUI _roundText;
     [SerializeField] private TextMeshProUGUI _timeText;
@@ -22,7 +23,8 @@ public class GameUIController : MonoBehaviour
 
     public float countdownTime = 3f; 
 
-    public float GameTime = 0f;
+    private float GameTime = 0f;
+    [SerializeField] float _timeLimit = 60f; // Example time limit for the game
 
     public bool isPlaying = false;
     // This is the "Messenger"
@@ -38,7 +40,7 @@ public class GameUIController : MonoBehaviour
         set
         {
             _score = value;
-            _scoreText.text = "Score: " + value.ToString();
+            _scoreText.text =  value.ToString();
         }
     }
 
@@ -71,20 +73,28 @@ public class GameUIController : MonoBehaviour
     {
         _gameOverPanel.SetActive(false);
         _ScorePanel.SetActive(false);
-        _timerPanel.SetActive(true);
-        StartCoroutine(StartCountdown());
+        _InstructionPanel.SetActive(true);
         isPlaying = false;
         generalManager = GeneralManager.Instance;
+        GameTime = _timeLimit;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isPlaying)
+        if (isPlaying && GameTime > 0.02f)
         {
-            GameTime += Time.deltaTime;
-            _timeText.text = "Time: " + GameTime.ToString("F2");
+            GameTime -= Time.deltaTime;
+            _timeText.text = GameTime.ToString("F2");
         }
+    }
+
+    public void startTimer()
+    {
+        
+        _timerPanel.SetActive(true);
+        _InstructionPanel.SetActive(false);
+        StartCoroutine(StartCountdown());
     }
 
     IEnumerator StartCountdown()
@@ -106,9 +116,9 @@ public class GameUIController : MonoBehaviour
 
         OnTimerFinished?.Invoke();
         isPlaying = true;
-        _scoreText.gameObject.SetActive(ShowScoreText);
+        _scoreText.transform.parent.gameObject.SetActive(ShowScoreText);
         _roundText.gameObject.SetActive(ShowRoundText);
-        _timeText.gameObject.SetActive(ShowTimeText);
+        _timeText.transform.parent.gameObject.SetActive(ShowTimeText);
         if(ShowRoundText || ShowScoreText || ShowTimeText)
             _ScorePanel.SetActive(true);    
     }
@@ -136,6 +146,8 @@ public class GameUIController : MonoBehaviour
         {
             generalManager.LissanaGahaPlayed = false;
         }
+
+        _ScorePanel.SetActive(false);
     }
 
 

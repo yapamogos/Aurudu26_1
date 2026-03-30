@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -16,6 +18,9 @@ public class CameraFollow : MonoBehaviour
         MapView,
 
     }
+
+    public static event Action OnMapViewActivated;
+    public static event Action OnMapViewDeactivated;
 
     public CameraState currentState = CameraState.Follow;
 
@@ -76,10 +81,12 @@ public class CameraFollow : MonoBehaviour
         if(currentState == CameraState.Follow)
         {
             currentState = CameraState.MapView;
+            OnMapViewActivated?.Invoke();
         }
         else
         {
             currentState = CameraState.Follow;
+            OnMapViewDeactivated?.Invoke();
         }
        
     }

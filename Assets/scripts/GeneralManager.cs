@@ -65,7 +65,7 @@ public class GeneralManager : MonoBehaviour
         StartCoroutine("WaitForNextFrame");
 
         
-        PlayerLastPosition = new Vector3(-2.4f, 0, -44.4f);
+        PlayerLastPosition = new Vector3(-2.4f, 0, -55f);
     }
 
 
