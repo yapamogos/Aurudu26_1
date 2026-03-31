@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
@@ -29,6 +29,7 @@ public class ElephantEyeGame2D : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private SpriteRenderer blackoutPanel;
+    [SerializeField] private SpriteRenderer SecondBlackoutPanel;
     [SerializeField] private GameObject instructionPanel; // Panel with instructions shown at start
     [SerializeField] private TextMeshProUGUI instructionText;
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -52,7 +53,7 @@ public class ElephantEyeGame2D : MonoBehaviour
         if (mainCamera == null) mainCamera = Camera.main;
 
         eyeWorldPosition = elephantSprite.transform.TransformPoint(eyePosition);
-        blackoutPanel.color = new Color(0, 0, 0, 0f);
+        blackoutPanel.color = new Color(1, 1, 1, 0f);
 
         blackoutPanel.gameObject.SetActive(true);
         scoreText.gameObject.SetActive(false);
@@ -76,6 +77,7 @@ public class ElephantEyeGame2D : MonoBehaviour
         movingDot.gameObject.SetActive(true);        
         movingDot.transform.position = new Vector3(startX, startY, -1);
         dotIsMoving = true;
+        SecondBlackoutPanel.gameObject.SetActive(false);
     }
 
     void Update()
@@ -223,21 +225,23 @@ public class ElephantEyeGame2D : MonoBehaviour
     IEnumerator SlideBlackoutDown()
     {
         float alpha = 0f;
-        while (alpha < 0.999f)
+        while (alpha < 1f)
         {
             alpha += 2f * Time.deltaTime;
-            blackoutPanel.color = new Color(0, 0, 0, alpha);
+            blackoutPanel.color = new Color(1, 1, 1, alpha);
             yield return null;
-        }
+        }   
+
+        SecondBlackoutPanel.gameObject.SetActive(true);
     }
 
     IEnumerator SlideBlackoutUp()
     {
         float alpha = 1f;
-        while (alpha > 0.001f)
+        while (alpha > 0f)
         {
             alpha -= 2f * Time.deltaTime;
-            blackoutPanel.color = new Color(0, 0, 0, alpha);
+            blackoutPanel.color = new Color(1, 1, 1, alpha);
             yield return null;
         }
     }
@@ -259,6 +263,7 @@ public class ElephantEyeGame2D : MonoBehaviour
 
     IEnumerator ShowResultsWithAnimation(int score, float distance, Vector3 dotPosition)
     {
+        SecondBlackoutPanel.gameObject.SetActive(false);
         yield return StartCoroutine(SlideBlackoutUp());
 
         movingDot.sortingOrder = 5;

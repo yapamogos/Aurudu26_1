@@ -499,19 +499,7 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1328428538}
-        m_TargetAssemblyTypeName: HomeManager, Assembly-CSharp
-        m_MethodName: checkValidInput
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1235,7 +1223,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 1004957647}
   m_OnClick:
     m_PersistentCalls:
@@ -2168,7 +2156,6 @@ MonoBehaviour:
   StartButton: {fileID: 1270003460}
   nameInputField: {fileID: 548828694}
   numberInputField: {fileID: 1005085628}
-  LoginButton: {fileID: 1004957646}
 --- !u!4 &1328428539
 Transform:
   m_ObjectHideFlags: 0

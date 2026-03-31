@@ -3947,8 +3947,8 @@ MonoBehaviour:
   CharacterIndex: 1
   ColorIndex: 2
   boyMaterials:
-  - {fileID: 2100000, guid: d1b529385f736414aac07f5581980aaf, type: 2}
   - {fileID: 2100000, guid: 87d8453afa890f9498c6e8f61bf6be98, type: 2}
+  - {fileID: 2100000, guid: d1b529385f736414aac07f5581980aaf, type: 2}
   - {fileID: 2100000, guid: 1d85eab538ccc384fb71e7fe95cdbf0f, type: 2}
   - {fileID: 2100000, guid: 150df0f9fc349cf4eaffe5a8317c42d3, type: 2}
   girlMaterials:

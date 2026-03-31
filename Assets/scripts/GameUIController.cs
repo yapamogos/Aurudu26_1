@@ -128,7 +128,7 @@ public class GameUIController : MonoBehaviour
         isPlaying = false;
         if(gameName == "WasanaMutti")
         {
-            generalManager.wasanaMuttiPlayed = false;
+            generalManager.WasanaMuttiPlayed = false;
         }
         else if(gameName == "KambaAdeema")
         {

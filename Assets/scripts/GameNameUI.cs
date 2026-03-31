@@ -23,7 +23,7 @@ public class GameNameUI : MonoBehaviour
     void Start()
     {
         generalManager = GeneralManager.Instance;
-        if(gameName == GameNames.WasanaMutti && generalManager.wasanaMuttiPlayed ||
+        if(gameName == GameNames.WasanaMutti && generalManager.WasanaMuttiPlayed ||
            gameName == GameNames.KambaAdeema && generalManager.KambaAdeemaPlayed ||
            gameName == GameNames.KottaPora && generalManager.KottaPoraPlayed ||
            gameName == GameNames.AliyataAhaThabima && generalManager.AliyataAhaThabimaPlayed ||

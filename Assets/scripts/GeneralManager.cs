@@ -21,7 +21,7 @@ public class GeneralManager : MonoBehaviour
     public int AliyataAhaThabimaScore = 0;
     public int LissanaGahaScore = 0;
 
-    public bool wasanaMuttiPlayed = false;
+    public bool WasanaMuttiPlayed = false;
     public bool KambaAdeemaPlayed = false;
     public bool KottaPoraPlayed = false;
     public bool AliyataAhaThabimaPlayed = false;
@@ -30,7 +30,7 @@ public class GeneralManager : MonoBehaviour
 
     public Vector3 PlayerLastPosition ;
 
-
+    public string LastSceneName;
 
     public int MyTotalScore
     {
@@ -71,11 +71,13 @@ public class GeneralManager : MonoBehaviour
 
     void Start()
     {
-        wasanaMuttiPlayed = true;
+        WasanaMuttiPlayed = true;
         KambaAdeemaPlayed = true;
         KottaPoraPlayed = true;
         AliyataAhaThabimaPlayed = true;
         LissanaGahaPlayed = true;
+
+        LastSceneName = "Home";
 
 
  

@@ -51,7 +51,7 @@ public class Player : MonoBehaviour
         playerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
         playerAnimator.ColorIndex = generalManager.currentColorIndex;
         playerAnimator.UpdateCharacter();
-        transform.position = generalManager.PlayerLastPosition;
+        //transform.position = generalManager.PlayerLastPosition;
     }
 
     void Update()
