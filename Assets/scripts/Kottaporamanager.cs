@@ -160,6 +160,7 @@ public class Kottaporamanager : MonoBehaviour
         gameStarted = false;
         resolved = true;
         hitButton.interactable = false;
+        gameUIController.TotalRounds = 9;
         gameUIController.Round = 1;
         gameUIController.Score = 0;
 
@@ -349,5 +350,6 @@ public class Kottaporamanager : MonoBehaviour
     {
         if (!scoreText) return;
         scoreText.text = $"Score: {Mathf.RoundToInt(totalScore)}/100";
+        gameUIController.Score = Mathf.RoundToInt(totalScore);
     }
 }

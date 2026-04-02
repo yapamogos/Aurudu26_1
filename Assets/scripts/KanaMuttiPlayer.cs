@@ -27,10 +27,10 @@ public class KanaMuttiPlayer : MonoBehaviour
 
 
     [Header("Scoring")]
-    [SerializeField] private int wrongPotScore_R12 = 10;
-    [SerializeField] private int correctPotScore_R12 = 20;
-    [SerializeField] private int wrongPotScore_R3 = 10;
-    [SerializeField] private int correctPotScore_R3 = 60;
+    [SerializeField] private int wrongPotScore_R12 = 20;
+    [SerializeField] private int correctPotScore_R12 = 30;
+    [SerializeField] private int wrongPotScore_R3 = 20;
+    [SerializeField] private int correctPotScore_R3 = 30;
     [SerializeField] private int perfectScore = 100;
 
     // Game state
@@ -47,7 +47,7 @@ public class KanaMuttiPlayer : MonoBehaviour
     private int targetPotNumber = 0;
 
     // Score tracking
-    private int totalScore = 0;
+    private float totalScore = 0;
     private int correctHits = 0;
 
     // Track if current hit is correct (for sound playing)
@@ -68,6 +68,7 @@ public class KanaMuttiPlayer : MonoBehaviour
     void Start()
     {
         Initialize();
+        gameUIController.TotalRounds = totalRounds; // Set total rounds in GameUIController
         gameUIController.Round = currentRound; // Initialize round in GameUIController
         gameUIController.Score = totalScore; // Initialize score in GameUIController
 
@@ -372,7 +373,7 @@ public class KanaMuttiPlayer : MonoBehaviour
             resultText.color = Color.yellow;
         }
             gameUIController.GameOver("WasanaMutti");
-            gameUIController.ShowGameOverPanel(Mathf.RoundToInt(totalScore), "WasanaMutti");
+            gameUIController.ShowGameOverPanel(totalScore, "WasanaMutti");
         actionButton.interactable = false;
 
     }

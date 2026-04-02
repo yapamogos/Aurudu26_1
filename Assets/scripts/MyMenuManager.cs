@@ -18,11 +18,18 @@ public class MyMenuManager : MonoBehaviour
     [SerializeField] private GameObject LissanaGahaLoc;
 
 
+    [SerializeField] private GameObject navMeshObject;
+
+    [SerializeField] private GameObject LeaderBoard;
+
+    [SerializeField] private GameObject LeaderBoardEntryPrefab;
+
+
 
     void LateUpdate()
     {
-        int totalScore = generalManager.MyTotalScore;
-        TotalScoreText.text = totalScore.ToString();
+        float totalScore = generalManager.MyTotalScore;
+        TotalScoreText.text = totalScore.ToString("F2");
     } 
 
     void Awake()
@@ -33,8 +40,11 @@ public class MyMenuManager : MonoBehaviour
             generalManager.SubmitScore(generalManager.MyTotalScore);   
         }
 
+        generalManager.GetLeaderboard();
 
-       /* if(generalManager.LastSceneName == "Home")
+        navMeshObject.SetActive(false);
+
+        if(generalManager.LastSceneName == "Home")
         {
             player.transform.position = StartLoc.transform.position;
         }
@@ -61,7 +71,10 @@ public class MyMenuManager : MonoBehaviour
         else
         {
             player.transform.position = StartLoc.transform.position;
-        }*/
+        }
+
+        navMeshObject.SetActive(true);
+        LeaderBoard.SetActive(false);
     }  
 
     public void StartGame(string sceneName)
@@ -76,5 +89,25 @@ public class MyMenuManager : MonoBehaviour
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
         generalManager.LastSceneName = "Home";
+    }
+
+    public void ShowLeaderBoard()
+    {
+        LeaderBoard.SetActive(true);
+        for(int i = 0; i < generalManager.leaderboardLines.Count; i++)
+        {
+            GameObject entry = Instantiate(LeaderBoardEntryPrefab, LeaderBoard.transform.GetChild(1).transform);
+            TextMeshProUGUI entryText = entry.GetComponentInChildren<TextMeshProUGUI>();
+            entryText.text = generalManager.leaderboardLines[i];
+        }
+    }
+
+    public void HideLeaderBoard()
+    {
+        LeaderBoard.SetActive(false);
+        for(int i = 0; i < LeaderBoard.transform.GetChild(1).childCount; i++)
+        {
+            Destroy(LeaderBoard.transform.GetChild(1).GetChild(i).gameObject);
+        }
     }
 }

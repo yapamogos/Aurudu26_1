@@ -222,6 +222,11 @@ public class LissanaPlayer : MonoBehaviour
             Timetmp += Time.deltaTime;
             TimeText.text = Timetmp.ToString("F2");
             finishTime = Timetmp;
+
+            if(Timetmp >= 30f)
+            {
+                EndTheGame(true);
+            }
         }
         
     }
@@ -266,10 +271,7 @@ public class LissanaPlayer : MonoBehaviour
             playerAnimator.Climb(false);
             if(isPlaying)
             {
-                isPlaying = false;
-                gameUIController.GameOver("LissanaGaha");
-                int finalScore = Mathf.Max(0, 120 - (int)(finishTime * 2f));
-                gameUIController.ShowGameOverPanel(finalScore, "LissanaGaha");
+                EndTheGame(false);
             }
         }
 
@@ -282,6 +284,24 @@ public class LissanaPlayer : MonoBehaviour
         {
             slideSpeed = slideSpeedHigh; // Increased slide speed
         }
+    }
+
+    void EndTheGame(bool isTimeUp = true)
+    {
+        isPlaying = false;
+        gameUIController.GameOver("LissanaGaha");
+        if(isTimeUp)
+        {
+            gameUIController.ShowGameOverPanel(0, "LissanaGaha");  
+        }
+        else
+        {
+           float finalScore = Mathf.Max(0, 120 - (finishTime * 2f));
+            gameUIController.ShowGameOverPanel(finalScore, "LissanaGaha");  
+        }
+        
+        
+            
     }
 
     void ClimbUp()

@@ -30,8 +30,8 @@ public class GameUIController : MonoBehaviour
     // This is the "Messenger"
     public static event Action OnTimerFinished;
 
-    private int _score;
-    public int Score 
+    private float _score;
+    public float Score 
     {   
         get
         {
@@ -40,9 +40,11 @@ public class GameUIController : MonoBehaviour
         set
         {
             _score = value;
-            _scoreText.text =  value.ToString();
+            _scoreText.text =  value.ToString("F2"); // Format score to 2 decimal places
         }
     }
+
+    public int TotalRounds;
 
     private int _round;
     public int Round
@@ -54,7 +56,7 @@ public class GameUIController : MonoBehaviour
 
         set
         {
-            _roundText.text = "Round: " + value.ToString();
+            _roundText.text =  value.ToString() +" / " + TotalRounds.ToString();
         }
     }
 
@@ -117,7 +119,7 @@ public class GameUIController : MonoBehaviour
         OnTimerFinished?.Invoke();
         isPlaying = true;
         _scoreText.transform.parent.gameObject.SetActive(ShowScoreText);
-        _roundText.gameObject.SetActive(ShowRoundText);
+        _roundText.transform.parent.gameObject.SetActive(ShowRoundText);
         _timeText.transform.parent.gameObject.SetActive(ShowTimeText);
         if(ShowRoundText || ShowScoreText || ShowTimeText)
             _ScorePanel.SetActive(true);    
@@ -152,10 +154,10 @@ public class GameUIController : MonoBehaviour
 
 
 
-    public void ShowGameOverPanel(int finalScore , string gameName )
+    public void ShowGameOverPanel(float finalScore , string gameName )
     {
-        generalManager.SubmitScore(finalScore);
-        GameOverMessage = $"{finalScore}";
+        //generalManager.SubmitScore(finalScore);
+        GameOverMessage = $"{finalScore:F2}";
         _gameOverPanel.SetActive(true);
 
         if(gameName == "WasanaMutti")

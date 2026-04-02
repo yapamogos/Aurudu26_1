@@ -15,11 +15,11 @@ public class GeneralManager : MonoBehaviour
     public float TargetFrameRate = 120.0f;
     float currentFrameTime;
 
-    public int wasanaMuttiScore = 0;
-    public int KambaAdeemaScore = 0;
-    public int KottaPoraScore = 0;
-    public int AliyataAhaThabimaScore = 0;
-    public int LissanaGahaScore = 0;
+    public float wasanaMuttiScore = 0;
+    public float KambaAdeemaScore = 0;
+    public float KottaPoraScore = 0;
+    public float AliyataAhaThabimaScore = 0;
+    public float LissanaGahaScore = 0;
 
     public bool WasanaMuttiPlayed = false;
     public bool KambaAdeemaPlayed = false;
@@ -32,7 +32,7 @@ public class GeneralManager : MonoBehaviour
 
     public string LastSceneName;
 
-    public int MyTotalScore
+    public float MyTotalScore
     {
         get { 
             return wasanaMuttiScore + KambaAdeemaScore + KottaPoraScore + AliyataAhaThabimaScore + LissanaGahaScore; 
@@ -43,6 +43,7 @@ public class GeneralManager : MonoBehaviour
         }
     }
 
+    public List<string> leaderboardLines = new List<string>();
 
 
 
@@ -156,12 +157,12 @@ public class GeneralManager : MonoBehaviour
     Debug.LogError(error.GenerateErrorReport());
     }
 
-    public void SubmitScore(int score) {
+    public void SubmitScore(float score) {
         var request = new UpdatePlayerStatisticsRequest {
             Statistics = new List<StatisticUpdate> {
                 new StatisticUpdate {
                     StatisticName = "HighScore",
-                    Value = score
+                    Value = (int)(score*100) // Convert to int by multiplying by 100
                 }
             }
         };
@@ -192,5 +193,38 @@ public class GeneralManager : MonoBehaviour
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
         Debug.Log("Successfully updated PlayFab Display Name to: " + result.DisplayName);
+    }
+
+    public void GetLeaderboard()
+    {
+        var request = new GetLeaderboardRequest
+        {
+            StatisticName = "HighScore", // Must match the name in SubmitScore
+            StartPosition = 0,
+            MaxResultsCount = 10
+        };
+
+        PlayFabClientAPI.GetLeaderboard(request, OnGetLeaderboardListSuccess, OnError);
+    }
+
+    void OnGetLeaderboardListSuccess(GetLeaderboardResult result)
+    {
+        leaderboardLines.Clear(); // Clear old data
+
+        foreach (var item in result.Leaderboard)
+        {
+            // Convert the int back to a float (matching your SubmitScore logic)
+            float actualScore = item.StatValue / 100.0f;
+            
+            // Format: "#1 | Name | 500.25"
+            string entry = string.Format("#{0} | {1} | {2}", 
+                item.Position + 1, 
+                item.DisplayName ?? "Player", 
+                actualScore.ToString("F2")); // "F2" keeps 2 decimal places
+
+            leaderboardLines.Add(entry);
+        }
+
+        Debug.Log("Leaderboard list updated with " + leaderboardLines.Count + " entries.");
     }
 }

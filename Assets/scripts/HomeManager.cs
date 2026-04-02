@@ -53,14 +53,36 @@ public class HomeManager : MonoBehaviour
         PlayerPrefs.SetString("PhoneNumber", phoneNumber);
         PlayerPrefs.Save();
         NamePanel.SetActive(false);
-        StartButton.SetActive(true);
+        StartButton.SetActive(true);        
+        generalManager.Login();
     }
 
+    public void LoggedIn()
+    {
+        if (PlayerPrefs.HasKey("MyName") && PlayerPrefs.HasKey("Uniq_Player_ID"))
+        {
+            NamePanel.SetActive(false);
+            StartButton.SetActive(true);
+        }
+        else
+        {
+            NamePanel.SetActive(true);
+            StartButton.SetActive(false);
+        }
+    }
+    
     public void checkValidInput()
     {
         if (!string.IsNullOrEmpty(nameInputField.text) )
         {
-            LoginButton.interactable = true;
+            if ((numberInputField.text.Length == 10 && long.TryParse(numberInputField.text, out _)) || string.IsNullOrEmpty(numberInputField.text))
+            {
+                LoginButton.interactable = true;
+            }
+            else
+            {
+                LoginButton.interactable = false;
+            }
         }
         else
         {
@@ -73,7 +95,6 @@ public class HomeManager : MonoBehaviour
     public void StartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
-        generalManager.Login();
     }
 
     public void Menutransition()
