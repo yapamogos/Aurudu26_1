@@ -93,6 +93,7 @@ public class MyMenuManager : MonoBehaviour
 
     public void ShowLeaderBoard()
     {
+        generalManager.GetLeaderboard();
         LeaderBoard.SetActive(true);
         for(int i = 0; i < generalManager.leaderboardLines.Count; i++)
         {

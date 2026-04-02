@@ -81,7 +81,11 @@ public class GeneralManager : MonoBehaviour
         LastSceneName = "Home";
 
 
- 
+        wasanaMuttiScore = 0;
+        KambaAdeemaScore = 0;   
+        KottaPoraScore = 0;
+        AliyataAhaThabimaScore = 0; 
+        LissanaGahaScore = 0;
     }
 
 

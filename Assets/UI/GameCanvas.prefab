@@ -383,8 +383,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1991983182303655899}
-  - {fileID: 1716828291053818364}
   - {fileID: 4481214278483266950}
+  - {fileID: 1716828291053818364}
   - {fileID: 5956268533258571785}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -483,6 +483,7 @@ MonoBehaviour:
   countdownTime: 3
   _timeLimit: 60
   isPlaying: 0
+  TotalRounds: 0
 --- !u!1 &1489167166113178539
 GameObject:
   m_ObjectHideFlags: 0

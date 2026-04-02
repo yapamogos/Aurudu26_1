@@ -255,13 +255,13 @@ public class ElephantEyeGame2D : MonoBehaviour
 
         Vector3 finalDotPosition = movingDot.transform.position;
         float distance = Vector2.Distance(finalDotPosition, eyeWorldPosition);
-        int score = CalculateScore(distance);
+        float score = CalculateScore(distance);
         StartCoroutine(ShowResultsWithAnimation(score, distance, finalDotPosition));
 
         gameUIController.GameOver("AliyataAhaThabima");
     }
 
-    IEnumerator ShowResultsWithAnimation(int score, float distance, Vector3 dotPosition)
+    IEnumerator ShowResultsWithAnimation(float score, float distance, Vector3 dotPosition)
     {
         SecondBlackoutPanel.gameObject.SetActive(false);
         yield return StartCoroutine(SlideBlackoutUp());
@@ -286,19 +286,19 @@ public class ElephantEyeGame2D : MonoBehaviour
         scoreText.text = $"Distance: {distance:F2} units\n{GetScoreMessage(score)}";
 
         instructionText.text = GetResultMessage(score);
-        instructionText.color = GetResultColor(score);
+        //instructionText.color = GetResultColor(score);
 
         yield return new WaitForSeconds(2f);
         gameUIController.ShowGameOverPanel(score, "AliyataAhaThabima");
 
     }
 
-    int CalculateScore(float distance)
+    float CalculateScore(float distance)
     {
         float maxDistance = 2.5f;
         distance = Mathf.Clamp(distance, 0f, maxDistance);
         float normalized = 1f - (distance / maxDistance);
-        int score = Mathf.RoundToInt(normalized * maxScore);
+        float score = normalized * maxScore;
         score = Mathf.Max(score, 10);
         return score;
     }
@@ -349,7 +349,7 @@ public class ElephantEyeGame2D : MonoBehaviour
         lineRenderer.sortingOrder = 5;
     }
 
-    string GetScoreMessage(int score)
+    string GetScoreMessage(float score)
     {
         if (score == maxScore)
             return "PERFECT! Bull's Eye!";
@@ -365,7 +365,7 @@ public class ElephantEyeGame2D : MonoBehaviour
             return "Better luck next time!";
     }
 
-    string GetResultMessage(int score)
+    string GetResultMessage(float score)
     {
         if (score == maxScore)
             return "AMAZING! Perfect shot!";
@@ -377,7 +377,7 @@ public class ElephantEyeGame2D : MonoBehaviour
             return "Try again!";
     }
 
-    Color GetResultColor(int score)
+    /*Color GetResultColor(int score)
     {
         if (score >= maxScore * 0.8f)
             return Color.green;
@@ -385,7 +385,7 @@ public class ElephantEyeGame2D : MonoBehaviour
             return Color.yellow;
         else
             return new Color(1f, 0.5f, 0f);
-    }
+    }*/
 
     // Called by Exit button
     public void ExitToMainMenu()
