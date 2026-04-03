@@ -25,6 +25,16 @@ public class MyMenuManager : MonoBehaviour
     [SerializeField] private GameObject LeaderBoardEntryPrefab;
 
 
+    [SerializeField] private Sprite PlayedSprite;
+    [SerializeField] private Sprite NotPlayedSprite;
+
+    [SerializeField] private Image wasanaMuttiLocImage;
+    [SerializeField] private Image KambaAdeemaImage;
+    [SerializeField] private Image KottaporaImage;
+    [SerializeField] private Image AliyaImage;
+    [SerializeField] private Image LissanaGahaImage;
+
+
 
     void LateUpdate()
     {
@@ -77,6 +87,17 @@ public class MyMenuManager : MonoBehaviour
         LeaderBoard.SetActive(false);
     }  
 
+    void Start()
+    {
+        wasanaMuttiLocImage.sprite = generalManager.WasanaMuttiHas ? NotPlayedSprite : PlayedSprite;
+        KambaAdeemaImage.sprite = generalManager.KambaAdeemaHas ? NotPlayedSprite : PlayedSprite;
+        KottaporaImage.sprite = generalManager.KottaPoraHas ? NotPlayedSprite : PlayedSprite;
+        AliyaImage.sprite = generalManager.AliyataAhaThabimaHas ? NotPlayedSprite : PlayedSprite;
+        LissanaGahaImage.sprite = generalManager.LissanaGahaHas ? NotPlayedSprite : PlayedSprite;
+
+
+    }
+
     public void StartGame(string sceneName)
     {
         player.SetPlayerPosition();
@@ -87,8 +108,10 @@ public class MyMenuManager : MonoBehaviour
 
     public void HomeButton()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
         generalManager.LastSceneName = "Home";
+        generalManager.SetRePlay();
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
+        
     }
 
     public void ShowLeaderBoard()

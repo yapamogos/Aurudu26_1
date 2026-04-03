@@ -238,13 +238,13 @@ public class KanaMuttiPlayer : MonoBehaviour
         {
             points = isCorrect ? correctPotScore_R3 : wrongPotScore_R3;
             resultText.text = isCorrect ? $"PERFECT! +{points} points!" : $"Hit! +{points} points!";
-            resultText.color = isCorrect ? Color.green : Color.yellow;
+            resultText.color = isCorrect ? Color.green : Color.black;
         }
         else
         {
             points = isCorrect ? correctPotScore_R12 : wrongPotScore_R12;
             resultText.text = isCorrect ? $"Perfect! +{points} points!" : $"Hit! +{points} points!";
-            resultText.color = isCorrect ? Color.green : Color.yellow;
+            resultText.color = isCorrect ? Color.green : Color.black;
         }
 
         if (isCorrect) correctHits++;
@@ -322,7 +322,7 @@ public class KanaMuttiPlayer : MonoBehaviour
 
     void HandleSoftMiss()
     {
-        resultText.text = "Missed! Try Again!";
+        resultText.text = "Missed!";
         resultText.color = Color.red;
         Invoke(nameof(NextRound), delayBeforeNextRound);
     }

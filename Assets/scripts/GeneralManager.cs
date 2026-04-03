@@ -21,11 +21,11 @@ public class GeneralManager : MonoBehaviour
     public float AliyataAhaThabimaScore = 0;
     public float LissanaGahaScore = 0;
 
-    public bool WasanaMuttiPlayed = false;
-    public bool KambaAdeemaPlayed = false;
-    public bool KottaPoraPlayed = false;
-    public bool AliyataAhaThabimaPlayed = false;
-    public bool LissanaGahaPlayed = false;
+    public bool WasanaMuttiHas = false;
+    public bool KambaAdeemaHas = false;
+    public bool KottaPoraHas = false;
+    public bool AliyataAhaThabimaHas = false;
+    public bool LissanaGahaHas = false;
 
 
     public Vector3 PlayerLastPosition ;
@@ -72,11 +72,11 @@ public class GeneralManager : MonoBehaviour
 
     void Start()
     {
-        WasanaMuttiPlayed = true;
-        KambaAdeemaPlayed = true;
-        KottaPoraPlayed = true;
-        AliyataAhaThabimaPlayed = true;
-        LissanaGahaPlayed = true;
+        WasanaMuttiHas = true;
+        KambaAdeemaHas = true;
+        KottaPoraHas = true;
+        AliyataAhaThabimaHas = true;
+        LissanaGahaHas = true;
 
         LastSceneName = "Home";
 
@@ -231,4 +231,30 @@ public class GeneralManager : MonoBehaviour
 
         Debug.Log("Leaderboard list updated with " + leaderboardLines.Count + " entries.");
     }
+
+
+    public void SetRePlay()
+    {
+        wasanaMuttiScore = 0;
+        KambaAdeemaScore = 0;
+        KottaPoraScore = 0;
+        AliyataAhaThabimaScore = 0;
+        LissanaGahaScore = 0;
+
+
+        WasanaMuttiHas = true;
+        KambaAdeemaHas = true;
+        KottaPoraHas = true;
+        AliyataAhaThabimaHas = true;
+        LissanaGahaHas = true;
+
+        Loggout();
+    }
+
+
+    public void Loggout()
+    {
+        PlayFabSettings.staticPlayer.ClientSessionTicket = null;
+    }
+         // Reset the specific game data based on the gameName
 }

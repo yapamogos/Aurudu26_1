@@ -227,6 +227,7 @@ public class Kottaporamanager : MonoBehaviour
             return;
         }
 
+ 
         bool passed = hitsThisRound >= hitsToPassRound;
         if (resultText) resultText.text = passed ? "ROUND CLEAR!" : "ROUND FAILED!";
 

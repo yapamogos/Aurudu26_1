@@ -23,11 +23,11 @@ public class GameNameUI : MonoBehaviour
     void Start()
     {
         generalManager = GeneralManager.Instance;
-        if(gameName == GameNames.WasanaMutti && generalManager.WasanaMuttiPlayed ||
-           gameName == GameNames.KambaAdeema && generalManager.KambaAdeemaPlayed ||
-           gameName == GameNames.KottaPora && generalManager.KottaPoraPlayed ||
-           gameName == GameNames.AliyataAhaThabima && generalManager.AliyataAhaThabimaPlayed ||
-           gameName == GameNames.LissanaGaha && generalManager.LissanaGahaPlayed)
+        if(gameName == GameNames.WasanaMutti && generalManager.WasanaMuttiHas ||
+           gameName == GameNames.KambaAdeema && generalManager.KambaAdeemaHas ||
+           gameName == GameNames.KottaPora && generalManager.KottaPoraHas ||
+           gameName == GameNames.AliyataAhaThabima && generalManager.AliyataAhaThabimaHas ||
+           gameName == GameNames.LissanaGaha && generalManager.LissanaGahaHas)
         {
             GameButton.SetActive(true);
         }

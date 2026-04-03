@@ -130,23 +130,23 @@ public class GameUIController : MonoBehaviour
         isPlaying = false;
         if(gameName == "WasanaMutti")
         {
-            generalManager.WasanaMuttiPlayed = false;
+            generalManager.WasanaMuttiHas = false;
         }
         else if(gameName == "KambaAdeema")
         {
-            generalManager.KambaAdeemaPlayed = false;
+            generalManager.KambaAdeemaHas = false;
         }
         else if(gameName == "KottaPora")
         {
-            generalManager.KottaPoraPlayed = false;
+            generalManager.KottaPoraHas = false;
         }
         else if(gameName == "AliyataAhaThabima")
         {
-            generalManager.AliyataAhaThabimaPlayed = false;
+            generalManager.AliyataAhaThabimaHas = false;
         }
         else if(gameName == "LissanaGaha")
         {
-            generalManager.LissanaGahaPlayed = false;
+            generalManager.LissanaGahaHas = false;
         }
 
         _ScorePanel.SetActive(false);
