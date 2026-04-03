@@ -21,6 +21,7 @@ public class MyMenuManager : MonoBehaviour
     [SerializeField] private GameObject navMeshObject;
 
     [SerializeField] private GameObject LeaderBoard;
+    [SerializeField] private GameObject LeaderBoardContent;
 
     [SerializeField] private GameObject LeaderBoardEntryPrefab;
 
@@ -36,12 +37,30 @@ public class MyMenuManager : MonoBehaviour
 
 
 
+    [SerializeField] private GameObject CongtratsPanel;
+    [SerializeField] private GameObject NumberInput;
+    [SerializeField] private GameObject SaveButton;
+    [SerializeField] private GameObject conExitButton;
+
+
+
+
     void LateUpdate()
     {
         float totalScore = generalManager.MyTotalScore;
         TotalScoreText.text = totalScore.ToString("F2");
     } 
+    
 
+    void OnEnable()
+    {
+        GeneralManager.OnLeaderboardUpdated += ShowPlayersInLeaderBoard;
+    }
+
+    void OnDisable()
+    {
+        GeneralManager.OnLeaderboardUpdated -= ShowPlayersInLeaderBoard;
+    }
     void Awake()
     {
         generalManager = GeneralManager.Instance;
@@ -50,9 +69,11 @@ public class MyMenuManager : MonoBehaviour
             generalManager.SubmitScore(generalManager.MyTotalScore);   
         }
 
-        generalManager.GetLeaderboard();
+        //generalManager.GetLeaderboard();
 
         navMeshObject.SetActive(false);
+        player.transform.gameObject.SetActive(false);
+        player.canMove = false;
 
         if(generalManager.LastSceneName == "Home")
         {
@@ -83,24 +104,31 @@ public class MyMenuManager : MonoBehaviour
             player.transform.position = StartLoc.transform.position;
         }
 
-        navMeshObject.SetActive(true);
+        
         LeaderBoard.SetActive(false);
-    }  
+        LeaderBoardContent.SetActive(false);
+        CongtratsPanel.SetActive(false);
+        if(!generalManager.WasanaMuttiHas && !generalManager.KambaAdeemaHas && !generalManager.KottaPoraHas && !generalManager.AliyataAhaThabimaHas && !generalManager.LissanaGahaHas)
+        {
+            CongratsPanel();
+        }
 
-    void Start()
-    {
+
         wasanaMuttiLocImage.sprite = generalManager.WasanaMuttiHas ? NotPlayedSprite : PlayedSprite;
         KambaAdeemaImage.sprite = generalManager.KambaAdeemaHas ? NotPlayedSprite : PlayedSprite;
         KottaporaImage.sprite = generalManager.KottaPoraHas ? NotPlayedSprite : PlayedSprite;
         AliyaImage.sprite = generalManager.AliyataAhaThabimaHas ? NotPlayedSprite : PlayedSprite;
         LissanaGahaImage.sprite = generalManager.LissanaGahaHas ? NotPlayedSprite : PlayedSprite;
 
+        navMeshObject.SetActive(true);
+        player.transform.gameObject.SetActive(true);
+        player.canMove = true;
 
-    }
+    }  
+
 
     public void StartGame(string sceneName)
     {
-        player.SetPlayerPosition();
         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
         generalManager.LastSceneName = sceneName;
         
@@ -118,9 +146,20 @@ public class MyMenuManager : MonoBehaviour
     {
         generalManager.GetLeaderboard();
         LeaderBoard.SetActive(true);
+        
+    }
+
+
+    public void ShowPlayersInLeaderBoard()
+    {
+        LeaderBoardContent.SetActive(true);
+        for(int i = 0; i < LeaderBoardContent.transform.childCount; i++)
+        {
+            Destroy(LeaderBoardContent.transform.GetChild(i).gameObject);
+        }
         for(int i = 0; i < generalManager.leaderboardLines.Count; i++)
         {
-            GameObject entry = Instantiate(LeaderBoardEntryPrefab, LeaderBoard.transform.GetChild(1).transform);
+            GameObject entry = Instantiate(LeaderBoardEntryPrefab, LeaderBoardContent.transform);
             TextMeshProUGUI entryText = entry.GetComponentInChildren<TextMeshProUGUI>();
             entryText.text = generalManager.leaderboardLines[i];
         }
@@ -129,9 +168,61 @@ public class MyMenuManager : MonoBehaviour
     public void HideLeaderBoard()
     {
         LeaderBoard.SetActive(false);
-        for(int i = 0; i < LeaderBoard.transform.GetChild(1).childCount; i++)
+        LeaderBoardContent.SetActive(false);
+        for(int i = 0; i < LeaderBoardContent.transform.childCount; i++)
         {
-            Destroy(LeaderBoard.transform.GetChild(1).GetChild(i).gameObject);
+            Destroy(LeaderBoardContent.transform.GetChild(i).gameObject);
         }
     }
+
+    public void CongratsPanel()
+    {
+        CongtratsPanel.SetActive(true);
+        if (PlayerPrefs.HasKey("PhoneNumber") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PhoneNumber")))
+        {
+            NumberInput.SetActive(false);
+            SaveButton.SetActive(false);
+            conExitButton.SetActive(true);
+        }
+         else
+        {
+            NumberInput.SetActive(true);
+            SaveButton.SetActive(true);
+            conExitButton.SetActive(false);
+            SaveButton.GetComponent<Button>().interactable = false;
+        }
+
+        
+    }
+
+    public void SaveAndSetNumber()
+    {
+        string phoneNumber = NumberInput.GetComponent<TMP_InputField>().text;
+        PlayerPrefs.SetString("PhoneNumber", phoneNumber);
+        PlayerPrefs.Save();
+        generalManager.SaveCustomPlayerData(phoneNumber);
+        NumberInput.SetActive(false);
+        SaveButton.SetActive(false);
+        conExitButton.SetActive(true);
+    }
+
+    public void checkValidInput()
+    {
+        if (!string.IsNullOrEmpty(NumberInput.GetComponent<TMP_InputField>().text) )
+        {
+            if ((NumberInput.GetComponent<TMP_InputField>().text.Length == 10 && long.TryParse(NumberInput.GetComponent<TMP_InputField>().text, out _)) || string.IsNullOrEmpty(NumberInput.GetComponent<TMP_InputField>().text))
+            {
+                SaveButton.GetComponent<Button>().interactable = true;
+            }
+            else
+            {
+                SaveButton.GetComponent<Button>().interactable = false;
+            }
+        }
+        else
+        {
+            SaveButton.GetComponent<Button>().interactable = false;
+        }
+    }
+
 }

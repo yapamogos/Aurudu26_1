@@ -47,17 +47,23 @@ public class HomeManager : MonoBehaviour
 
     public void SetName()
     {
+        bool newplayer = false;
         string name = nameInputField.text;
+        string OldName = PlayerPrefs.GetString("MyName", "");
+        if (name != OldName)
+        {
+            newplayer = true;
+        }
         PlayerPrefs.SetString("MyName", name);
         string phoneNumber = numberInputField.text;
         PlayerPrefs.SetString("PhoneNumber", phoneNumber);
         PlayerPrefs.Save();
         NamePanel.SetActive(false);
         StartButton.SetActive(true);        
-        generalManager.Login();
+        generalManager.Login(newplayer);
     }
 
-    public void LoggedIn()
+    /*public void LoggedIn()
     {
         if (PlayerPrefs.HasKey("MyName") && PlayerPrefs.HasKey("Uniq_Player_ID"))
         {
@@ -70,7 +76,7 @@ public class HomeManager : MonoBehaviour
             StartButton.SetActive(false);
         }
     }
-    
+    */
     public void checkValidInput()
     {
         if (!string.IsNullOrEmpty(nameInputField.text) )
@@ -95,6 +101,9 @@ public class HomeManager : MonoBehaviour
     public void StartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+
+        generalManager.SetDisplayName(PlayerPrefs.GetString("MyName", "Guest"));
+        generalManager.SaveCustomPlayerData(PlayerPrefs.GetString("PhoneNumber", "NoNumber"));
     }
 
     public void Menutransition()

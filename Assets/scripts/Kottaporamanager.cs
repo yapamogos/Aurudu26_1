@@ -33,9 +33,8 @@ public class Kottaporamanager : MonoBehaviour
 
 
     [Header("Gameplay Settings")]
-    [SerializeField] private int totalRounds = 4;
+    [SerializeField] private int totalRounds = 3;
     [SerializeField] private int shotsPerRound = 3;
-    [SerializeField] private int hitsToPassRound = 2;
     [SerializeField] private float shotTimeLimit = 2.5f;
     [SerializeField] private float resolveLockTime = 0.35f;
 
@@ -52,9 +51,9 @@ public class Kottaporamanager : MonoBehaviour
     [SerializeField] private float targetMinNormalized = 0.15f;
     [SerializeField] private float targetMaxNormalized = 0.85f;
 
-    private int roundIndex;
-    private int shotIndex;
-    private int shotRound;
+    public int roundIndex;
+    public int shotIndex;
+    public int shotRound;
     private int hitsThisRound;
 
     private float timeLeftThisShot;
@@ -202,7 +201,7 @@ public class Kottaporamanager : MonoBehaviour
             AIPlayerAnimator.React();
             hitsThisRound++;
             totalScore += pointsPerHit;
-            gameUIController.Score = Mathf.RoundToInt(totalScore);
+            gameUIController.Score = totalScore;
         }
         else
         {
@@ -218,24 +217,27 @@ public class Kottaporamanager : MonoBehaviour
 
     private void AdvanceAfterShot()
     {
-        if (shotIndex < shotsPerRound)
+
+        shotIndex++;
+        if(shotRound < gameUIController.TotalRounds)
         {
-            shotIndex++;
             shotRound++;
-            gameUIController.Round = shotRound; // Update shot round in GameUIController
+        }
+        gameUIController.Round = shotRound;
+        if (shotIndex <= shotsPerRound)
+        {
             StartNewShot();
             return;
         }
 
- 
-        bool passed = hitsThisRound >= hitsToPassRound;
-        if (resultText) resultText.text = passed ? "ROUND CLEAR!" : "ROUND FAILED!";
+
 
         Invoke(nameof(AdvanceAfterRound), 0.6f);
     }
 
     private void AdvanceAfterRound()
     {
+        
         if (roundIndex >= totalRounds)
         {
             EndGame();
@@ -307,7 +309,7 @@ public class Kottaporamanager : MonoBehaviour
         hitButton.interactable = false;
         resolved = true;
 
-        int finalScore = Mathf.RoundToInt(totalScore);
+        float finalScore = totalScore;
 
         if (roundText) roundText.text = "GAME OVER";
         if (shotText) shotText.text = "";
@@ -319,7 +321,7 @@ public class Kottaporamanager : MonoBehaviour
         UpdateScoreUI();
 
         gameUIController.GameOver("KottaPora");
-        gameUIController.ShowGameOverPanel(Mathf.RoundToInt(finalScore), "KottaPora");
+        gameUIController.ShowGameOverPanel(finalScore, "KottaPora");
     }
 
     // ---------- UI ----------
@@ -334,7 +336,6 @@ public class Kottaporamanager : MonoBehaviour
             return;
         }
 
-        if (roundText) roundText.text = $"Round {roundIndex}/{totalRounds}  (Need {hitsToPassRound}/{shotsPerRound})";
         if (shotText) shotText.text = $"Shot {shotIndex}/{shotsPerRound}  Hits: {hitsThisRound}";
 
         UpdateTimerUI();
@@ -351,6 +352,6 @@ public class Kottaporamanager : MonoBehaviour
     {
         if (!scoreText) return;
         scoreText.text = $"Score: {Mathf.RoundToInt(totalScore)}/100";
-        gameUIController.Score = Mathf.RoundToInt(totalScore);
+        gameUIController.Score = totalScore;
     }
 }

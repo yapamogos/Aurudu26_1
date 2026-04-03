@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private CameraFollow cameraFollow;
 
+    public bool canMove = false; // Flag to control player movement
+
     void Start()
     {
         // Get the NavMeshAgent component
@@ -51,7 +53,6 @@ public class Player : MonoBehaviour
         playerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
         playerAnimator.ColorIndex = generalManager.currentColorIndex;
         playerAnimator.UpdateCharacter();
-        //transform.position = generalManager.PlayerLastPosition;
     }
 
     void Update()
@@ -91,6 +92,10 @@ public class Player : MonoBehaviour
 
     private void UpdateAnimation()
     {
+        if(!canMove)
+        {
+            return;
+        }
         // Check if the agent is moving (velocity magnitude > threshold)
         bool isMoving = agent.velocity.magnitude > 0.1f;
         playerAnimator.Run(isMoving);
@@ -101,16 +106,11 @@ public class Player : MonoBehaviour
             if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
             {
                 activeIndicator.SetActive(false);
-                SetPlayerPosition();
             }
         }
     }
 
-    public void SetPlayerPosition()
-    {
-        generalManager.PlayerLastPosition = transform.localPosition;
-        //Debug.Log("Player position saved: " + generalManager.PlayerLastPosition);
-    }
+
 
 
 }

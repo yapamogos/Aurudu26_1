@@ -365,12 +365,12 @@ public class KanaMuttiPlayer : MonoBehaviour
         {
             totalScore = perfectScore;
             resultText.text = $" PERFECT! HIGH SCORE: {perfectScore}!";
-            resultText.color = Color.cyan;
+            resultText.color = Color.black;
         }
         else
         {
             resultText.text = $"Game Complete! Final Score: {totalScore}";
-            resultText.color = Color.yellow;
+            resultText.color = Color.black;
         }
             gameUIController.GameOver("WasanaMutti");
             gameUIController.ShowGameOverPanel(totalScore, "WasanaMutti");

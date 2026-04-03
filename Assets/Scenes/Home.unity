@@ -478,7 +478,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 50
-  m_CharacterLimit: 0
+  m_CharacterLimit: 15
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -652,7 +652,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b7806af6a0efe8c47a826b315ed61375, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6641a2052ec49db459348700bbf46b73, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1247,6 +1247,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: HomeManager, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2669,11 +2681,11 @@ MonoBehaviour:
   KottaPoraScore: 0
   AliyataAhaThabimaScore: 0
   LissanaGahaScore: 0
-  WasanaMuttiPlayed: 0
-  KambaAdeemaPlayed: 0
-  KottaPoraPlayed: 0
-  AliyataAhaThabimaPlayed: 0
-  LissanaGahaPlayed: 0
+  WasanaMuttiHas: 0
+  KambaAdeemaHas: 0
+  KottaPoraHas: 0
+  AliyataAhaThabimaHas: 0
+  LissanaGahaHas: 0
   PlayerLastPosition: {x: 0, y: 0, z: 0}
   LastSceneName: 
   leaderboardLines: []

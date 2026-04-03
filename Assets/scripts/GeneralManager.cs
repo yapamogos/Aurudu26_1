@@ -43,6 +43,8 @@ public class GeneralManager : MonoBehaviour
         }
     }
 
+    public static event Action OnLeaderboardUpdated;
+
     public List<string> leaderboardLines = new List<string>();
 
 
@@ -119,23 +121,23 @@ public class GeneralManager : MonoBehaviour
 
     string uniqueSessionId = Guid.NewGuid().ToString();
 
-    public void Login()
+    public void Login(bool newplayer)
     {
         var request = new LoginWithCustomIDRequest
         {
             // Use our custom generator instead of SystemInfo
-            CustomId = GetOrCreatePlayerID(), 
+            CustomId = GetOrCreatePlayerID(newplayer), 
             CreateAccount = true
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
     }
 
-    string GetOrCreatePlayerID()
+    string GetOrCreatePlayerID(bool newPlayer)
     {
         // 1. Check if we already have an ID saved in this browser's cache
         string savedID = PlayerPrefs.GetString("Uniq_Player_ID", "");
 
-        if (string.IsNullOrEmpty(savedID))
+        if (string.IsNullOrEmpty(savedID) || newPlayer)
         {
             // 2. If not, generate a brand new unique one
             // Guid.NewGuid() is statistically impossible to duplicate
@@ -197,6 +199,7 @@ public class GeneralManager : MonoBehaviour
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
         Debug.Log("Successfully updated PlayFab Display Name to: " + result.DisplayName);
+        SaveCustomPlayerData(PlayerPrefs.GetString("PhoneNumber", "NoNumber"));
     }
 
     public void GetLeaderboard()
@@ -221,13 +224,17 @@ public class GeneralManager : MonoBehaviour
             float actualScore = item.StatValue / 100.0f;
             
             // Format: "#1 | Name | 500.25"
-            string entry = string.Format("#{0} | {1} | {2}", 
+
+
+                string entry = string.Format("{0,-3} | {1,-20} | {2,10}", 
                 item.Position + 1, 
-                item.DisplayName ?? "Player", 
-                actualScore.ToString("F2")); // "F2" keeps 2 decimal places
+                (item.DisplayName ?? "Player"), 
+                actualScore.ToString("F2"));
 
             leaderboardLines.Add(entry);
         }
+
+        OnLeaderboardUpdated?.Invoke(); // Notify listeners that the leaderboard has been updated
 
         Debug.Log("Leaderboard list updated with " + leaderboardLines.Count + " entries.");
     }
@@ -257,4 +264,27 @@ public class GeneralManager : MonoBehaviour
         PlayFabSettings.staticPlayer.ClientSessionTicket = null;
     }
          // Reset the specific game data based on the gameName
+
+
+    public void SaveCustomPlayerData(string number)
+    {
+        var request = new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string>
+            {
+                { "Number", number },
+            },
+            // Set to Public so other players can see it, or Private (default)
+            Permission = UserDataPermission.Private 
+        };
+
+        PlayFabClientAPI.UpdateUserData(request, OnDataSaved, OnError);
+    }
+
+    private void OnDataSaved(UpdateUserDataResult result)
+    {
+        Debug.Log("Successfully saved custom player data!");
+    }
+
+
 }
