@@ -180,11 +180,6 @@ public class GeneralManager : MonoBehaviour
         Debug.Log("Score submitted successfully!");
     }
 
-    void OnError(PlayFabError error) {
-        Debug.LogError(error.GenerateErrorReport());
-    }
-
-
 
     public void SetDisplayName(string nameToSet)
     {
@@ -266,7 +261,7 @@ public class GeneralManager : MonoBehaviour
          // Reset the specific game data based on the gameName
 
 
-    public void SaveCustomPlayerData(string number)
+    /*public void SaveCustomPlayerData(string number)
     {
         var request = new UpdateUserDataRequest
         {
@@ -279,11 +274,78 @@ public class GeneralManager : MonoBehaviour
         };
 
         PlayFabClientAPI.UpdateUserData(request, OnDataSaved, OnError);
+    }*/
+
+    public void SaveCustomPlayerData(string number)
+    {
+        // 1. Save to Player Data (same as before)
+        var request = new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string>
+            {
+                { "Number", number },
+            },
+            Permission = UserDataPermission.Private
+        };
+
+        PlayFabClientAPI.UpdateUserData(request, result =>
+        {
+            Debug.Log("Player data saved!");
+
+            // 2. SEND EVENT FOR ANALYTICS (🔥 THIS IS THE KEY)
+            SendPlayerNumberEvent(number);
+
+        }, OnError);
+    }
+
+    void SendPlayerNumberEvent(string number)
+    {
+        var request = new WriteClientPlayerEventRequest
+        {
+            EventName = "player_number_updated",
+            Body = new Dictionary<string, object>
+            {
+                { "Number", number }
+            }
+        };
+
+        PlayFabClientAPI.WritePlayerEvent(request,
+            result => Debug.Log("Player number event sent!"),
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
     }
 
     private void OnDataSaved(UpdateUserDataResult result)
     {
         Debug.Log("Successfully saved custom player data!");
+    }
+
+    void OnError(PlayFabError error) {
+    // Check if the error is specifically about the Display Name being taken
+        if (error.Error == PlayFabErrorCode.NameNotAvailable || error.ErrorMessage.Contains("Name not available"))
+        {
+            Debug.LogWarning("The chosen display name is already taken. Try a different one!");
+            // Logic to handle the duplicate name (e.g., append a random number or show a UI popup)
+            HandleDuplicateName(); 
+        }
+        else
+        {
+            // Standard error logging for everything else
+            Debug.LogError("PlayFab Error: " + error.GenerateErrorReport());
+        }
+    }
+
+    void HandleDuplicateName()
+    {
+        // Example: Try setting the name again with a random suffix
+        string currentName = PlayerPrefs.GetString("MyName", "Guest");
+        string newName = currentName + UnityEngine.Random.Range(100, 999).ToString();
+
+        PlayerPrefs.SetString("MyName", newName);
+        PlayerPrefs.Save();
+        
+        Debug.Log("Retrying with: " + newName);
+        SetDisplayName(newName);
     }
 
 

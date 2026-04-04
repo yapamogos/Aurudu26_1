@@ -41,6 +41,8 @@ public class MyMenuManager : MonoBehaviour
     [SerializeField] private GameObject NumberInput;
     [SerializeField] private GameObject SaveButton;
     [SerializeField] private GameObject conExitButton;
+    [SerializeField] private GameObject conReplayButton;
+    [SerializeField] private TextMeshProUGUI ConTotalScoreText;
 
 
 
@@ -183,14 +185,20 @@ public class MyMenuManager : MonoBehaviour
             NumberInput.SetActive(false);
             SaveButton.SetActive(false);
             conExitButton.SetActive(true);
+            conReplayButton.SetActive(true);
         }
          else
         {
             NumberInput.SetActive(true);
             SaveButton.SetActive(true);
             conExitButton.SetActive(false);
+            conReplayButton.SetActive(false);
             SaveButton.GetComponent<Button>().interactable = false;
         }
+
+        float totalScore = generalManager.MyTotalScore;
+        TotalScoreText.text = totalScore.ToString("F2");
+        ConTotalScoreText.text = totalScore.ToString("F2");
 
         
     }
@@ -204,6 +212,7 @@ public class MyMenuManager : MonoBehaviour
         NumberInput.SetActive(false);
         SaveButton.SetActive(false);
         conExitButton.SetActive(true);
+        conReplayButton.SetActive(true);
     }
 
     public void checkValidInput()

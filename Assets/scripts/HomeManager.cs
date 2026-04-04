@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class HomeManager : MonoBehaviour
 {
@@ -47,7 +48,7 @@ public class HomeManager : MonoBehaviour
 
     public void SetName()
     {
-        bool newplayer = false;
+        /*bool newplayer = false;
         string name = nameInputField.text;
         string OldName = PlayerPrefs.GetString("MyName", "");
         if (name != OldName)
@@ -60,7 +61,35 @@ public class HomeManager : MonoBehaviour
         PlayerPrefs.Save();
         NamePanel.SetActive(false);
         StartButton.SetActive(true);        
+        generalManager.Login(newplayer);*/
+        
+        StartCoroutine(DelaySetName());
+    }
+
+    public IEnumerator DelaySetName()
+    {
+        bool newplayer = false;
+        string name = nameInputField.text;
+        string OldName = PlayerPrefs.GetString("MyName", "");
+        if (name != OldName)
+        {
+            newplayer = true;
+        }
+        yield return new WaitForSeconds(0.5f); // Adjust the delay as needed
+        PlayerPrefs.SetString("MyName", name);
+        PlayerPrefs.Save();
+
+        yield return new WaitForSeconds(0.5f); // Adjust the delay as needed
+        string phoneNumber = numberInputField.text;
+        PlayerPrefs.SetString("PhoneNumber", phoneNumber);
+        PlayerPrefs.Save();
+
+        yield return new WaitForSeconds(0.5f); // Adjust the delay as needed
         generalManager.Login(newplayer);
+        yield return new WaitForSeconds(0.5f); // Adjust the delay as needed
+        NamePanel.SetActive(false);
+        StartButton.SetActive(true);        
+        
     }
 
     /*public void LoggedIn()
@@ -79,21 +108,19 @@ public class HomeManager : MonoBehaviour
     */
     public void checkValidInput()
     {
-        if (!string.IsNullOrEmpty(nameInputField.text) )
-        {
-            if ((numberInputField.text.Length == 10 && long.TryParse(numberInputField.text, out _)) || string.IsNullOrEmpty(numberInputField.text))
-            {
-                LoginButton.interactable = true;
-            }
-            else
-            {
-                LoginButton.interactable = false;
-            }
-        }
-        else
-        {
-            LoginButton.interactable = false;
-        }
+        // 1. Extract the values to make the logic cleaner
+        string name = nameInputField.text;
+        string number = numberInputField.text;
+
+        // 2. Define your individual validation rules
+        bool isNameValid = !string.IsNullOrEmpty(name) && name.Length >= 3;
+
+        // Number is valid if it's empty (optional) OR (it's exactly 10 digits and numeric)
+        bool isNumberValid = string.IsNullOrEmpty(number) || 
+                            (number.Length == 10 && long.TryParse(number, out _));
+
+        // 3. The button is only interactable if BOTH are valid
+        LoginButton.interactable = isNameValid && isNumberValid;
     }
 
 
