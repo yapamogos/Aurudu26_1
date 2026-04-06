@@ -47,11 +47,11 @@ public class MyMenuManager : MonoBehaviour
 
 
 
-    void LateUpdate()
+    /*void LateUpdate()
     {
         float totalScore = generalManager.MyTotalScore;
         TotalScoreText.text = totalScore.ToString("F2");
-    } 
+    } */
     
 
     void OnEnable()
@@ -127,6 +127,12 @@ public class MyMenuManager : MonoBehaviour
         player.canMove = true;
 
     }  
+
+    void Start()
+    {
+        float totalScore = generalManager.MyTotalScore;
+        TotalScoreText.text = totalScore.ToString("F2");   
+    }
 
 
     public void StartGame(string sceneName)

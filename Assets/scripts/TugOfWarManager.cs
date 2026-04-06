@@ -134,7 +134,7 @@ public class TugOfWarManager : MonoBehaviour
         {
             float clampedTime = Mathf.Clamp(gameTime, bestTime, worstTime);
             float t = (clampedTime - bestTime) / (worstTime - bestTime);
-            score = Mathf.Round(Mathf.Lerp(100f, 1f, t));
+            score = Mathf.Lerp(100f, 1f, t);
 
         }
         else
@@ -174,6 +174,6 @@ public class TugOfWarManager : MonoBehaviour
     IEnumerator ShowScorePanelAfterDelay()
     {
         yield return new WaitForSeconds(2f);
-        gameUIController.ShowGameOverPanel(Mathf.RoundToInt(score), "KambaAdeema");
+        gameUIController.ShowGameOverPanel(score, "KambaAdeema");
     }
 }

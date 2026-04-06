@@ -57,6 +57,11 @@ public class KanaMuttiPlayer : MonoBehaviour
     private PlayerAnimator playerAnimator;
     private GeneralManager generalManager;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip SuccessClip;
+    [SerializeField] private AudioClip FailureClip;
+
+
     [System.Serializable]
     public struct PotSet
     {
@@ -286,6 +291,8 @@ public class KanaMuttiPlayer : MonoBehaviour
                 correctHitParticles.transform.position = potPosition;
                 correctHitParticles.Play();
                 Debug.Log("Playing CORRECT hit particles");
+
+                audioSource.PlayOneShot(SuccessClip);
             }
 
         }
@@ -297,6 +304,7 @@ public class KanaMuttiPlayer : MonoBehaviour
                 wrongHitParticles.transform.position = potPosition;
                 wrongHitParticles.Play();
                 Debug.Log("Playing WRONG hit particles");
+                audioSource.PlayOneShot(FailureClip);
             }
 
 

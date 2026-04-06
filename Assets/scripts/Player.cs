@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private CameraFollow cameraFollow;
 
+    [SerializeField] private GameObject tapHand;
+
     public bool canMove = false; // Flag to control player movement
 
     void Start()
@@ -60,6 +62,10 @@ public class Player : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             HandleClick();
+            if (tapHand != null)
+            {
+                tapHand.SetActive(false);
+            }
         }
 
         // Update animation based on agent velocity

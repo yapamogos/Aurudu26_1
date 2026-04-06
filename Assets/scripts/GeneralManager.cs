@@ -32,6 +32,10 @@ public class GeneralManager : MonoBehaviour
 
     public string LastSceneName;
 
+    [Header("Audio Settings")]
+    public AudioSource bgmSource; // Assign this in the Inspector
+    private Coroutine volumeCoroutine;
+
     public float MyTotalScore
     {
         get { 
@@ -88,6 +92,8 @@ public class GeneralManager : MonoBehaviour
         KottaPoraScore = 0;
         AliyataAhaThabimaScore = 0; 
         LissanaGahaScore = 0;
+
+        PlayMusicWithFade(0.8f, 3.0f);
     }
 
 
@@ -117,6 +123,41 @@ public class GeneralManager : MonoBehaviour
     public void SetCurrentColorIndex(int index)
     {
         currentColorIndex = index;
+    }
+
+    public void PlayMusicWithFade(float targetVolume = 1.0f, float duration = 2.0f)
+    {
+        if (bgmSource == null)
+        {
+            Debug.LogWarning("BGM Source not assigned on GeneralManager!");
+            return;
+        }
+
+        // Stop any existing fade to prevent conflicts
+        if (volumeCoroutine != null) StopCoroutine(volumeCoroutine);
+
+        // Start playing at 0 volume
+        bgmSource.volume = 0;
+        bgmSource.Play();
+
+        // Start the smooth increase
+        volumeCoroutine = StartCoroutine(FadeVolume(targetVolume, duration));
+    }
+
+    private IEnumerator FadeVolume(float targetVolume, float duration)
+    {
+        float currentTime = 0;
+        float startVolume = bgmSource.volume;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            // Move volume linearly from start to target over time
+            bgmSource.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / duration);
+            yield return null;
+        }
+
+        bgmSource.volume = targetVolume;
     }
 
     string uniqueSessionId = Guid.NewGuid().ToString();
@@ -163,7 +204,7 @@ public class GeneralManager : MonoBehaviour
     Debug.LogError(error.GenerateErrorReport());
     }
 
-    public void SubmitScore(float score) {
+    /*public void SubmitScore(float score) {
         var request = new UpdatePlayerStatisticsRequest {
             Statistics = new List<StatisticUpdate> {
                 new StatisticUpdate {
@@ -173,6 +214,51 @@ public class GeneralManager : MonoBehaviour
             }
         };
         PlayFabClientAPI.UpdatePlayerStatistics(request, OnScoreSubmitSuccess, OnError);
+    }*/
+
+    public void SubmitScore(float score)
+    {
+        int highScore = (int)(score * 100);
+
+        var request = new UpdatePlayerStatisticsRequest
+        {
+            Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate
+                {
+                    StatisticName = "HighScore",
+                    Value = highScore
+                }
+            }
+        };
+
+        PlayFabClientAPI.UpdatePlayerStatistics(request, result =>
+        {
+            // ✅ Stat updated successfully — now log event for PlayStream
+            var eventRequest = new WriteClientPlayerEventRequest
+            {
+                EventName = "player_highscore_updated",
+                Body = new Dictionary<string, object>
+                {
+                    { "HighScore", highScore }
+                }
+            };
+
+            PlayFabClientAPI.WritePlayerEvent(eventRequest,
+                eventResult =>
+                {
+                    UnityEngine.Debug.Log($"HighScore submitted & logged: {highScore}");
+                },
+                error =>
+                {
+                    Debug.LogError("Failed to write PlayStream event: " + error.GenerateErrorReport());
+                });
+
+        },
+        error =>
+        {
+            Debug.LogError("Failed to update player statistics: " + error.GenerateErrorReport());
+        });
     }
 
     void OnScoreSubmitSuccess(UpdatePlayerStatisticsResult result) 

@@ -137,4 +137,6 @@ public class HomeManager : MonoBehaviour
     {
         this.GetComponent<Animator>().Play("HomeTrans");
     }
+
+    
 }
