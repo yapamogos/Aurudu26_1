@@ -81,13 +81,13 @@ public class KanaMuttiPlayer : MonoBehaviour
         playerAnimator = GetComponent<PlayerAnimator>();
         if (playerAnimator == null)
         {
-            Debug.LogError("PlayerAnimator component not found! Please add it to the player.");
+           // Debug.LogError("PlayerAnimator component not found! Please add it to the player.");
         }
 
         generalManager = GeneralManager.Instance;
         if(generalManager == null)
         {
-            Debug.LogError("GeneralManager instance not found! Please ensure it exists in the scene.");
+           // Debug.LogError("GeneralManager instance not found! Please ensure it exists in the scene.");
             UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
         }
         playerAnimator.CharacterIndex = generalManager.currentCharacterIndex;
@@ -131,7 +131,7 @@ public class KanaMuttiPlayer : MonoBehaviour
             actionButton.interactable = true;
         }
 
-        Debug.Log("Game Started!");
+        //Debug.Log("Game Started!");
     }
 
     void Update()
@@ -156,8 +156,8 @@ public class KanaMuttiPlayer : MonoBehaviour
                           other.CompareTag("col2") ? 2 :
                           other.CompareTag("col3") ? 3 : 0;
 
-        if (currentPotNumber > 0)
-            Debug.Log($"Entered Pot {currentPotNumber} zone");
+        //if (currentPotNumber > 0)
+           // Debug.Log($"Entered Pot {currentPotNumber} zone");
     }
 
     void OnTriggerExit(Collider other)
@@ -165,14 +165,14 @@ public class KanaMuttiPlayer : MonoBehaviour
         if (other.CompareTag("col1") || other.CompareTag("col2") || other.CompareTag("col3"))
         {
             currentPotNumber = 0;
-            Debug.Log("Exited collision zone");
+            //Debug.Log("Exited collision zone");
         }
     }
 
     void ChooseRandomTargetPot()
     {
         targetPotNumber = Random.Range(1, 4);
-        Debug.Log($"Round {currentRound} - Target Pot: {targetPotNumber}");
+        //Debug.Log($"Round {currentRound} - Target Pot: {targetPotNumber}");
     }
 
     void SetupAllPots()
@@ -229,7 +229,7 @@ public class KanaMuttiPlayer : MonoBehaviour
     // THIS METHOD IS CALLED BY ANIMATION EVENT
     public void OnHitAnimationEvent()
     {
-        Debug.Log("Animation Event: OnHitAnimationEvent called!");
+        //Debug.Log("Animation Event: OnHitAnimationEvent called!");
         BreakPot();
     }
 
@@ -254,7 +254,7 @@ public class KanaMuttiPlayer : MonoBehaviour
 
         if (isCorrect) correctHits++;
 
-        Debug.Log($"Round {currentRound} - Points: {points} | Total: {totalScore}");
+        //Debug.Log($"Round {currentRound} - Points: {points} | Total: {totalScore}");
         return points;
     }
 
@@ -268,7 +268,7 @@ public class KanaMuttiPlayer : MonoBehaviour
         // Play appropriate particles and sound at pot position
         PlayParticlesAndSoundAtPot(index);
 
-        Debug.Log($"Pot {brokenPotThisRound} broken");
+       // Debug.Log($"Pot {brokenPotThisRound} broken");
     }
 
     void PlayParticlesAndSoundAtPot(int potIndex)
@@ -290,7 +290,7 @@ public class KanaMuttiPlayer : MonoBehaviour
             {
                 correctHitParticles.transform.position = potPosition;
                 correctHitParticles.Play();
-                Debug.Log("Playing CORRECT hit particles");
+               // Debug.Log("Playing CORRECT hit particles");
 
                 audioSource.PlayOneShot(SuccessClip);
             }
@@ -303,7 +303,7 @@ public class KanaMuttiPlayer : MonoBehaviour
             {
                 wrongHitParticles.transform.position = potPosition;
                 wrongHitParticles.Play();
-                Debug.Log("Playing WRONG hit particles");
+               // Debug.Log("Playing WRONG hit particles");
                 audioSource.PlayOneShot(FailureClip);
             }
 
@@ -317,7 +317,7 @@ public class KanaMuttiPlayer : MonoBehaviour
 
         int index = brokenPotThisRound - 1;
         SetPotState(index, true, false);
-        Debug.Log($"Pot {brokenPotThisRound} restored");
+        //Debug.Log($"Pot {brokenPotThisRound} restored");
     }
 
     void HandleMiss()

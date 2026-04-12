@@ -51,6 +51,25 @@ public class GeneralManager : MonoBehaviour
 
     public List<string> leaderboardLines = new List<string>();
 
+    public bool isBackgroundMusicPlaying
+    {
+        get { return bgmSource != null && bgmSource.isPlaying; }
+        set {
+            if (bgmSource == null) return;
+
+            if (value && !bgmSource.isPlaying)
+            {
+                PlayMusicWithFade(0.8f, 3.0f); // Start music with fade-in
+            }
+            else if (!value && bgmSource.isPlaying)
+            {
+                bgmSource.Stop(); // Stop music immediately
+                if (volumeCoroutine != null) StopCoroutine(volumeCoroutine); // Stop any ongoing fade
+            }
+        }
+    }
+
+
 
 
 
@@ -93,7 +112,13 @@ public class GeneralManager : MonoBehaviour
         AliyataAhaThabimaScore = 0; 
         LissanaGahaScore = 0;
 
-        PlayMusicWithFade(0.8f, 3.0f);
+        bool isMusicPlaying = PlayerPrefs.GetInt("IsMusicPlaying", 1) == 1; // Default to true (1)
+        isBackgroundMusicPlaying = isMusicPlaying; // This will handle starting/stopping music based on saved preference
+        Debug.Log("Background music is " + (isMusicPlaying ? "enabled" : "disabled") + " based on saved preference.");
+        if (isMusicPlaying)
+        {
+            PlayMusicWithFade(0.8f, 3.0f);
+        }
     }
 
 
@@ -129,7 +154,7 @@ public class GeneralManager : MonoBehaviour
     {
         if (bgmSource == null)
         {
-            Debug.LogWarning("BGM Source not assigned on GeneralManager!");
+            //Debug.LogWarning("BGM Source not assigned on GeneralManager!");
             return;
         }
 
@@ -187,7 +212,7 @@ public class GeneralManager : MonoBehaviour
             // 3. Save it so they get the same account next time
             PlayerPrefs.SetString("Uniq_Player_ID", savedID);
             PlayerPrefs.Save();
-            Debug.Log("Generated new WebGL ID: " + savedID);
+            //Debug.Log("Generated new WebGL ID: " + savedID);
         }
 
         return savedID;
@@ -195,13 +220,13 @@ public class GeneralManager : MonoBehaviour
 
     void OnLoginSuccess(LoginResult result)
     {
-        Debug.Log("Login successful!");
+        //Debug.Log("Login successful!");
         SetDisplayName(PlayerPrefs.GetString("MyName", "Guest"));
     }
 
     void OnLoginFailure(PlayFabError error)
     {
-    Debug.LogError(error.GenerateErrorReport());
+    //Debug.LogError(error.GenerateErrorReport());
     }
 
     /*public void SubmitScore(float score) {
@@ -216,9 +241,16 @@ public class GeneralManager : MonoBehaviour
         PlayFabClientAPI.UpdatePlayerStatistics(request, OnScoreSubmitSuccess, OnError);
     }*/
 
-    public void SubmitScore(float score)
+    public void SubmitScore(float score, string ghyt)
     {
         int highScore = (int)(score * 100);
+        string savedID = PlayerPrefs.GetString("Uniq_Player_ID", "");
+
+        if(ghyt != savedID)
+        {
+            //Debug.LogWarning("Score submission failed: Player name mismatch.");
+            return; // Exit early if the player name doesn't match
+        }
 
         var request = new UpdatePlayerStatisticsRequest
         {
@@ -247,23 +279,23 @@ public class GeneralManager : MonoBehaviour
             PlayFabClientAPI.WritePlayerEvent(eventRequest,
                 eventResult =>
                 {
-                    UnityEngine.Debug.Log($"HighScore submitted & logged: {highScore}");
+                    //UnityEngine.Debug.Log($"HighScore submitted & logged: {highScore}");
                 },
                 error =>
                 {
-                    Debug.LogError("Failed to write PlayStream event: " + error.GenerateErrorReport());
+                    //Debug.LogError("Failed to write PlayStream event: " + error.GenerateErrorReport());
                 });
 
         },
         error =>
         {
-            Debug.LogError("Failed to update player statistics: " + error.GenerateErrorReport());
+            //Debug.LogError("Failed to update player statistics: " + error.GenerateErrorReport());
         });
     }
 
     void OnScoreSubmitSuccess(UpdatePlayerStatisticsResult result) 
     {
-        Debug.Log("Score submitted successfully!");
+        //Debug.Log("Score submitted successfully!");
     }
 
 
@@ -279,7 +311,7 @@ public class GeneralManager : MonoBehaviour
 
     void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
-        Debug.Log("Successfully updated PlayFab Display Name to: " + result.DisplayName);
+        //Debug.Log("Successfully updated PlayFab Display Name to: " + result.DisplayName);
         SaveCustomPlayerData(PlayerPrefs.GetString("PhoneNumber", "NoNumber"));
     }
 
@@ -317,7 +349,7 @@ public class GeneralManager : MonoBehaviour
 
         OnLeaderboardUpdated?.Invoke(); // Notify listeners that the leaderboard has been updated
 
-        Debug.Log("Leaderboard list updated with " + leaderboardLines.Count + " entries.");
+        //Debug.Log("Leaderboard list updated with " + leaderboardLines.Count + " entries.");
     }
 
 
@@ -403,21 +435,21 @@ public class GeneralManager : MonoBehaviour
 
     private void OnDataSaved(UpdateUserDataResult result)
     {
-        Debug.Log("Successfully saved custom player data!");
+        //Debug.Log("Successfully saved custom player data!");
     }
 
     void OnError(PlayFabError error) {
     // Check if the error is specifically about the Display Name being taken
         if (error.Error == PlayFabErrorCode.NameNotAvailable || error.ErrorMessage.Contains("Name not available"))
         {
-            Debug.LogWarning("The chosen display name is already taken. Try a different one!");
+            //Debug.LogWarning("The chosen display name is already taken. Try a different one!");
             // Logic to handle the duplicate name (e.g., append a random number or show a UI popup)
             HandleDuplicateName(); 
         }
         else
         {
             // Standard error logging for everything else
-            Debug.LogError("PlayFab Error: " + error.GenerateErrorReport());
+            //Debug.LogError("PlayFab Error: " + error.GenerateErrorReport());
         }
     }
 
@@ -430,8 +462,15 @@ public class GeneralManager : MonoBehaviour
         PlayerPrefs.SetString("MyName", newName);
         PlayerPrefs.Save();
         
-        Debug.Log("Retrying with: " + newName);
+        //Debug.Log("Retrying with: " + newName);
         SetDisplayName(newName);
+    }
+
+    public void setBackgroundMusicPlaying()
+    {
+        isBackgroundMusicPlaying = !isBackgroundMusicPlaying;
+        PlayerPrefs.SetInt("IsMusicPlaying", isBackgroundMusicPlaying ? 1 : 0);
+        PlayerPrefs.Save();
     }
 
 

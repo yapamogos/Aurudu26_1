@@ -40,6 +40,8 @@ public class MyMenuManager : MonoBehaviour
     [SerializeField] private GameObject CongtratsPanel;
     [SerializeField] private GameObject NumberInput;
     [SerializeField] private GameObject SaveButton;
+    [SerializeField] private GameObject conCoverImage;
+    [SerializeField] private TextMeshProUGUI ConTextToRevael;
     [SerializeField] private GameObject conExitButton;
     [SerializeField] private GameObject conReplayButton;
     [SerializeField] private TextMeshProUGUI ConTotalScoreText;
@@ -68,7 +70,8 @@ public class MyMenuManager : MonoBehaviour
         generalManager = GeneralManager.Instance;
         if(generalManager.MyTotalScore > 0)
         {
-            generalManager.SubmitScore(generalManager.MyTotalScore);   
+            
+            generalManager.SubmitScore(generalManager.MyTotalScore, PlayerPrefs.GetString("Uniq_Player_ID", ""));   
         }
 
         //generalManager.GetLeaderboard();
@@ -192,6 +195,9 @@ public class MyMenuManager : MonoBehaviour
             SaveButton.SetActive(false);
             conExitButton.SetActive(true);
             conReplayButton.SetActive(true);
+            conCoverImage.SetActive(false);
+            ConTextToRevael.gameObject.SetActive(true);
+            ConTextToRevael.text = "Use this promo code at <b>fadna.com</b> to claim 10% off satiny";
         }
          else
         {
@@ -199,7 +205,11 @@ public class MyMenuManager : MonoBehaviour
             SaveButton.SetActive(true);
             conExitButton.SetActive(false);
             conReplayButton.SetActive(false);
+            conCoverImage.SetActive(true);
+            ConTextToRevael.gameObject.SetActive(true);
+            ConTextToRevael.text = "You've won the promo code. Add your number to claim.";
             SaveButton.GetComponent<Button>().interactable = false;
+            
         }
 
         float totalScore = generalManager.MyTotalScore;
@@ -219,6 +229,10 @@ public class MyMenuManager : MonoBehaviour
         SaveButton.SetActive(false);
         conExitButton.SetActive(true);
         conReplayButton.SetActive(true);
+        conCoverImage.SetActive(false);
+        ConTextToRevael.gameObject.SetActive(true);
+        ConTextToRevael.text = "Use this promo code at <b>fadna.com</b> to claim 10% off satiny";
+        
     }
 
     public void checkValidInput()
